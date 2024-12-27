@@ -7,8 +7,11 @@ const registerUser = async (req, res) => {
     const { username, email, password, role } = req.body;
 
     const existingUser = await userService.findUserByEmail(email);
+    const existingUsername = await userService.findUserByUsername(username);
     if (existingUser) {
       return res.status(400).json({ message: 'Email already exists' });
+    }else if (existingUsername){
+      return res.status(400).json({ message: 'Username already exists' });
     }
 
     const newUser = await userService.createUser({ username, email, password, role });
