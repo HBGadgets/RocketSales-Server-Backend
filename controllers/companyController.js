@@ -182,13 +182,31 @@ exports.deleteCompany = async (req, res) => {
     if (!company) {
       return res.status(404).json({ message: 'Company not found' });
     }
+     // Delete all associated users: branches, supervisors, and salesmen
+     for (const branch of company.branches) {
+      // For each branch, delete supervisors and their salesmen
+      for (const supervisor of branch.supervisors) {
+        // Delete all salesmen under the supervisor
+        for (const salesman of supervisor.salesmen) {
+          await User.deleteOne({ username: salesman.salesmanUsername });
+        }
+
+        // Delete the supervisor user
+        await User.deleteOne({ username: supervisor.supervisorUsername });
+      }
+
+      // Delete the branch user
+      await User.deleteOne({ username: branch.branchUsername });
+    }
 
     // Find the associated user by companyUsername
-    const user = await User.findOne({ username: company.companyUsername });
-    if (user) {
-      // Delete the associated user
-      await user.deleteOne();
-    }
+    // const user = await User.findOne({ username: company.companyUsername });
+    // if (user) {
+    //   // Delete the associated user
+    //   await user.deleteOne();
+    // }
+   // Delete the company user
+      await User.deleteOne({ username: company.companyUsername });
 
     // Delete the company
     await company.deleteOne();

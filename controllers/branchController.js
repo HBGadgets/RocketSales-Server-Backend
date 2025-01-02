@@ -150,6 +150,16 @@ exports.deleteBranch = async (req, res) => {
     if (!branch) {
       return res.status(404).json({ message: "Branch not found" });
     }
+     // Delete all associated supervisors and salesmen from User collection
+     for (const supervisor of branch.supervisors) {
+      for (const salesman of supervisor.salesmen) {
+        await User.deleteOne({ username: salesman.salesmanUsername });
+      }
+      await User.deleteOne({ username: supervisor.supervisorUsername });
+    }
+
+    // Delete the branch user
+    await User.deleteOne({ username: branch.branchUsername });
 
     // Clear supervisors to avoid potential duplicate key issues
     branch.supervisors = [];

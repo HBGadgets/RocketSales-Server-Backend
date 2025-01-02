@@ -173,7 +173,11 @@ exports.deleteSalesman = async (req, res) => {
     if (!supervisor) {
       return res.status(404).json({ message: 'Supervisor not found' });
     }
-
+    const salesman = supervisor.salesmen.id(salesmanId);
+    if (!salesman) {
+      return res.status(404).json({ message: 'Salesman not found' });
+    }
+    await User.deleteOne({ username: salesman.salesmanUsername });
     // Remove the salesman from the salesmen array
     supervisor.salesmen = supervisor.salesmen.filter(
       (salesman) => salesman._id.toString() !== salesmanId

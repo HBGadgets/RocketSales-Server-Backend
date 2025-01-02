@@ -151,7 +151,17 @@ exports.deleteSupervisor = async (req, res) => {
     if (!branch) {
       return res.status(404).json({ message: 'Branch not found' });
     }
+    const supervisor = branch.supervisors.id(supervisorId);
+    if (!supervisor) {
+      return res.status(404).json({ message: 'Supervisor not found' });
+    }
 
+    // Delete all associated salesmen from User collection
+    for (const salesman of supervisor.salesmen) {
+      await User.deleteOne({ username: salesman.salesmanUsername });
+    }
+      // Delete the supervisor user
+      await User.deleteOne({ username: supervisor.supervisorUsername });
     // Remove supervisor from the supervisors array
     branch.supervisors = branch.supervisors.filter(
       (supervisor) => supervisor._id.toString() !== supervisorId
