@@ -1,4 +1,6 @@
 const Company = require('../models/Company');
+const User = require("../models/User");
+
 
 // Add a Salesman
 exports.addSalesman = async (req, res) => {
@@ -28,6 +30,18 @@ exports.addSalesman = async (req, res) => {
       return res.status(400).json({ message: 'Salesman username already exists' });
     }
 
+    // Check if the username already exists in the User collection
+    const existingUserByUsername = await User.findOne({ username: salesmanUsername });
+    if (existingUserByUsername) {
+      return res.status(400).json({ message: 'Username already exists' });
+    }
+
+    // const salesmanEmail = `${salesmanUsername}@salesman.com`;
+    const existingUserByEmail = await User.findOne({ email: salesmanEmail });
+    if (existingUserByEmail) {
+      return res.status(400).json({ message: 'Email already exists in the system' });
+    }
+
     const newSalesman = {
       salesmanName,
       salesmanEmail,
@@ -38,6 +52,15 @@ exports.addSalesman = async (req, res) => {
 
     supervisor.salesmen.push(newSalesman);
     await company.save();
+
+      // Add salesman to User collection
+      const newUser = new User({
+        username: salesmanUsername,
+        password: salesmanPassword,
+        email: salesmanEmail,
+        role: 5,
+      });
+      await newUser.save();
 
     res.status(201).json({ message: 'Salesman added successfully', salesman: newSalesman });
   } catch (err) {
@@ -97,6 +120,15 @@ exports.updateSalesman = async (req, res) => {
     if (!salesman) {
       return res.status(404).json({ message: 'Salesman not found' });
     }
+     // Check if the new username already exists in User collection
+     if (salesmanUsername !== salesman.salesmanUsername) {
+      const existingUserByUsername = await User.findOne({ username: salesmanUsername });
+      if (existingUserByUsername) {
+        return res.status(400).json({ message: 'Username already exists' });
+      }
+    }
+    // const salesmanEmail = `${salesmanUsername}@salesman.com`;
+    const oldUsername = salesman.salesmanUsername;
 
     salesman.salesmanName = salesmanName || salesman.salesmanName;
     salesman.salesmanEmail = salesmanEmail || salesman.salesmanEmail;
@@ -105,7 +137,14 @@ exports.updateSalesman = async (req, res) => {
     salesman.salesmanPassword = salesmanPassword || salesman.salesmanPassword;
 
     await company.save();
-
+    const user = await User.findOne({ username: oldUsername });
+    if (user) {
+      user.username = salesmanUsername;
+      user.password = salesmanPassword;
+      user.email = salesmanEmail;
+      await user.save();
+    }
+    
     res.status(200).json({ message: 'Salesman updated successfully', salesman });
   } catch (err) {
     res.status(500).json({ message: err.message });

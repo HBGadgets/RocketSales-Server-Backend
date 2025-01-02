@@ -1,4 +1,6 @@
 const Company = require('../models/Company');
+const User = require("../models/User");
+
 
 // Add a Supervisor
 exports.addSupervisor = async (req, res) => {
@@ -28,7 +30,18 @@ exports.addSupervisor = async (req, res) => {
       if (existingSupervisor) {
         return res.status(400).json({ message: 'Supervisor username already exists' });
       }
-  
+      // Check if the username already exists in the User collection
+      const existingUserByUsername = await User.findOne({ username: supervisorUsername });
+      if (existingUserByUsername) {
+        return res.status(400).json({ message: 'Username already exists' });
+      }
+      // Check if the email already exists in the User collection (assuming email is generated)
+      const supervisorEmail = `${supervisorUsername}@supervisor.com`;
+      const existingUserByEmail = await User.findOne({ email: supervisorEmail });
+      if (existingUserByEmail) {
+        return res.status(400).json({ message: 'Email already exists in the system' });
+      }
+    
       const newSupervisor = {
         supervisorName,
         supervisorUsername,
@@ -39,6 +52,14 @@ exports.addSupervisor = async (req, res) => {
       // Push the new supervisor to the branch's supervisors array
       branch.supervisors.push(newSupervisor);
       await company.save();
+       // Add supervisor to User collection
+    const newUser = new User({
+      username: supervisorUsername,
+      password: supervisorPassword,
+      email: supervisorEmail,
+      role: 4,
+    });
+    await newUser.save();
   
       res.status(201).json({ message: 'Supervisor added successfully', supervisor: newSupervisor });
     } catch (err) {
@@ -87,13 +108,29 @@ exports.updateSupervisor = async (req, res) => {
     if (!supervisor) {
       return res.status(404).json({ message: 'Supervisor not found' });
     }
-
+      // Check if the new username already exists in User collection
+      if (supervisorUsername !== supervisor.supervisorUsername) {
+        const existingUserByUsername = await User.findOne({ username: supervisorUsername });
+        if (existingUserByUsername) {
+          return res.status(400).json({ message: 'Username already exists' });
+        }
+      }
+      const supervisorEmail = `${supervisorUsername}@supervisor.com`;
+      const oldUsername = supervisor.supervisorUsername;
+  
     supervisor.supervisorName = supervisorName || supervisor.supervisorName;
     supervisor.supervisorUsername = supervisorUsername || supervisor.supervisorUsername;
     supervisor.supervisorPassword = supervisorPassword || supervisor.supervisorPassword;
 
     await company.save();
-
+     // Update User collection
+     const user = await User.findOne({ username: oldUsername });
+     if (user) {
+       user.username = supervisorUsername;
+       user.password = supervisorPassword;
+       user.email = supervisorEmail;
+       await user.save();
+     }  
     res.status(200).json({ message: 'Supervisor updated successfully', supervisor });
   } catch (err) {
     res.status(500).json({ message: err.message });
