@@ -113,16 +113,16 @@ exports.updateCompany = async (req, res) => {
 
     // Save the old username and email for user search later
     const oldUsername = company.companyUsername;
-
-    // Check if the new username or email already exists in the User collection
-    if (companyUsername !== company.companyUsername) {
+    const oldEmail = company.companyEmail;
+    /// Validate if the new username or email already exists in the User collection
+    if (companyUsername && companyUsername !== oldUsername) {
       const existingUserByUsername = await User.findOne({ username: companyUsername });
       if (existingUserByUsername) {
-        return res.status(400).json({ message: 'Username already exists' });
+        return res.status(400).json({ message: 'Username already exists in the system' });
       }
     }
 
-    if (companyEmail !== company.companyEmail) {
+    if (companyEmail && companyEmail !== oldEmail) {
       const existingUserByEmail = await User.findOne({ email: companyEmail });
       if (existingUserByEmail) {
         return res.status(400).json({ message: 'Email already exists in the system' });
@@ -151,6 +151,8 @@ exports.updateCompany = async (req, res) => {
       user.password = companyPassword || user.password;
       user.email = companyEmail || user.email;
       await user.save();
+    }else {
+      return res.status(404).json({ message: 'Associated user not found in the system' });
     }
 
     res.status(200).json({ message: 'Company and associated user updated successfully', company });

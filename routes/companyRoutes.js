@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/create-company', companyController.createCompany);
 
 // Update company 
-router.post('/update-company/:id', companyController.updateCompany);
+router.put('/update-company/:id', companyController.updateCompany);
 
 // Delete company
 router.delete('/delete-company/:id', companyController.deleteCompany);
