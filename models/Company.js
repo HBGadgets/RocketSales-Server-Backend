@@ -36,6 +36,7 @@ const companySchema = new mongoose.Schema({
   branches: [branchSchema],                        
   companyUsername: { type: String, required: true, unique: true }, 
   companyPassword: { type: String, required: true },  
+  created_at: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Company', companySchema);
