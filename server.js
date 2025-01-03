@@ -8,7 +8,7 @@ const companyRoutes = require('./routes/companyRoutes');
 const branchRoutes = require('./routes/branchRoutes');
 const supervisorRoutes = require('./routes/supervisorRoutes');
 const salesmanRoutes = require('./routes/salesmanRoutes');
-// const taskRoutes = require('./routes/taskRoutes');
+const taskRoutes = require('./routes/taskRoutes');
 const connectDB = require("./config/db");
 
 const app = express();
@@ -31,7 +31,7 @@ app.use('/api', companyRoutes);
 app.use('/api', branchRoutes);
 app.use('/api', supervisorRoutes);  // For Supervisor CRUD
 app.use('/api', salesmanRoutes);
-// app.use('/api', taskRoutes);
+app.use('/api', taskRoutes);
 
 // Connect to MongoDB
 // mongoose
