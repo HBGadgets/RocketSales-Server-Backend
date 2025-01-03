@@ -25,7 +25,7 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
-
+    
     // Find the user by username
     const user = await userService.findUserByUsername(username);
     if (!user || user.password !== password) {
@@ -39,7 +39,10 @@ const loginUser = async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    res.status(200).json({ token });
+    res.status(200).json({ 
+      token,
+      role: user.role 
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
