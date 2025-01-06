@@ -227,3 +227,61 @@ exports.getCompanyByUsername = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// ---------------------------------------superadmin
+// Get all branches of all companies
+exports.getAllBranches = async (req, res) => {
+  try {
+    // Fetch all companies
+    const companies = await Company.find({}, 'companyName branches');
+
+    if (!companies.length) {
+      return res.status(404).json({ message: 'No companies found' });
+    }
+
+    // Map through companies to extract branches
+    const result = companies.map(company => ({
+      _id:company._id,
+      companyName: company.companyName,
+      branches: company.branches.map(branch => ({
+        _id:branch._id,
+        branchName: branch.branchName,
+        branchLocation: branch.branchLocation,
+      })),
+    }));
+
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+// Get all supervisors grouped by company and branch
+exports.getAllSupervisors = async (req, res) => {
+  try {
+    // Fetch all companies
+    const companies = await Company.find({}, 'companyName branches');
+
+    if (!companies.length) {
+      return res.status(404).json({ message: 'No companies found' });
+    }
+
+    // Map through companies to extract branches and supervisors
+    const result = companies.map(company => ({
+      _id: company._id,
+      companyName: company.companyName,
+      branches: company.branches.map(branch => ({
+        _id: branch._id,
+        branchName: branch.branchName,
+        supervisors: branch.supervisors.map(supervisor => ({
+          _id: supervisor._id,
+          supervisorName: supervisor.supervisorName,
+          supervisorUsername: supervisor.supervisorUsername,
+        })),
+      })),
+    }));
+
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
