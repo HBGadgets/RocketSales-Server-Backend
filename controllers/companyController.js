@@ -249,6 +249,7 @@ exports.getAllBranches = async (req, res) => {
           _id: branch._id,
           branchName: branch.branchName,
           branchLocation: branch.branchLocation,
+          branchUsername:branch.branchUsername,
           branchPassword: branch.branchPassword
         })),
       }));
