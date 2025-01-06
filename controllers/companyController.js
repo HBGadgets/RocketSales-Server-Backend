@@ -263,30 +263,54 @@ exports.getAllBranches = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-// Get all supervisors grouped by company and branch
+
+// Get all supervisors of all companies and branches
 exports.getAllSupervisors = async (req, res) => {
   try {
-    // Fetch all companies
-    const companies = await Company.find({}, 'companyName branches');
+    // Fetch all companies with their branches and supervisors
+    const companies = await Company.find({}, 'companyName _id branches.branchName branches._id branches.branchLocation branches.supervisors');
 
     if (!companies.length) {
       return res.status(404).json({ message: 'No companies found' });
     }
 
-    // Map through companies to extract branches and supervisors
-    const result = companies.map(company => ({
-      _id: company._id,
-      companyName: company.companyName,
-      branches: company.branches.map(branch => ({
-        _id: branch._id,
-        branchName: branch.branchName,
-        supervisors: branch.supervisors.map(supervisor => ({
-          _id: supervisor._id,
-          supervisorName: supervisor.supervisorName,
-          supervisorUsername: supervisor.supervisorUsername,
-        })),
-      })),
-    }));
+    // Filter and map to include only relevant branches with supervisors
+    const result = companies
+      .map(company => {
+        // Map through branches, ensuring they have supervisors
+        const branchesWithSupervisors = company.branches
+          .map(branch => {
+            const supervisors = branch.supervisors.filter(supervisor => supervisor); // Remove empty supervisors
+            if (supervisors.length > 0) {
+              return {
+                _id: branch._id,  // Include branch ID
+                branchName: branch.branchName,
+                branchLocation: branch.branchLocation,
+                supervisors: supervisors.map(supervisor => ({
+                  _id: supervisor._id,  // Include supervisor ID
+                  supervisorName: supervisor.supervisorName,
+                  supervisorUsername: supervisor.supervisorUsername,
+                })),
+              };
+            }
+            return null; // Skip this branch if no supervisors
+          })
+          .filter(branch => branch !== null); // Remove any branches that don't have supervisors
+
+        // Exclude companies with no branches having supervisors
+        if (branchesWithSupervisors.length === 0) return null;
+
+        return {
+          _id: company._id,  // Include company ID
+          companyName: company.companyName,
+          branches: branchesWithSupervisors,
+        };
+      })
+      .filter(company => company !== null); // Remove companies that don't have any valid branches with supervisors
+
+    if (!result.length) {
+      return res.status(404).json({ message: 'No supervisors found in branches' });
+    }
 
     res.status(200).json(result);
   } catch (err) {
