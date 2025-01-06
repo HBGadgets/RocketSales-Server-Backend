@@ -239,16 +239,23 @@ exports.getAllBranches = async (req, res) => {
       return res.status(404).json({ message: 'No companies found' });
     }
 
-    // Map through companies to extract branches
-    const result = companies.map(company => ({
-      _id:company._id,
-      companyName: company.companyName,
-      branches: company.branches.map(branch => ({
-        _id:branch._id,
-        branchName: branch.branchName,
-        branchLocation: branch.branchLocation,
-      })),
-    }));
+    // Filter and map companies to extract branches
+    const result = companies
+      .filter(company => company.branches && company.branches.length > 0) // Exclude companies without branches
+      .map(company => ({
+        _id: company._id,
+        companyName: company.companyName,
+        branches: company.branches.map(branch => ({
+          _id: branch._id,
+          branchName: branch.branchName,
+          branchLocation: branch.branchLocation,
+          branchPassword: branch.branchPassword
+        })),
+      }));
+
+    if (!result.length) {
+      return res.status(404).json({ message: 'No branches found' });
+    }
 
     res.status(200).json(result);
   } catch (err) {
