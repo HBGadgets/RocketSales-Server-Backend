@@ -40,8 +40,10 @@ const loginUser = async (req, res) => {
     );
 
     res.status(200).json({ 
+      message: "Successful Login",
       token,
-      role: user.role 
+      role: user.role, 
+      username: user.username
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
