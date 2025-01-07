@@ -69,33 +69,98 @@ exports.getTasksBySalesman = async (req, res) => {
     }
 };
 //getTasksBySupervisor
+// exports.getTasksBySupervisor = async (req, res) => {
+//   const { supervisorUsername } = req.params;
+
+//   try {
+//     const tasks = await Task.aggregate([
+//       { $match: { assignedBy: supervisorUsername } },
+//       {
+//         $group: {
+//           _id: '$taskGroupId',
+//           taskGroupId: { $first: '$taskGroupId' },
+//           taskDescription: { $first: '$taskDescription' },
+//           deadline: { $first: '$deadline' },
+//           assignedTo: {  
+//             $push: { 
+//               salesman: '$assignedTo', 
+//               status: '$status' 
+//             }
+//           },
+//         },
+//       },
+//     ]);
+
+//     if (!tasks.length) {
+//       return res.status(404).json({ message: 'No tasks found for this supervisor' });
+//     }
+
+//     res.status(200).json(tasks);
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// };
 exports.getTasksBySupervisor = async (req, res) => {
   const { supervisorUsername } = req.params;
 
   try {
+    // Aggregation pipeline
     const tasks = await Task.aggregate([
-      { $match: { assignedBy: supervisorUsername } },
+      { 
+        $match: { assignedBy: supervisorUsername } // Match tasks assigned by the supervisor
+      },
+      
+      // Sort tasks by 'createdAt' field before grouping
+      { 
+        $sort: { createdAt: 1 } // Sort by createdAt (ascending order)
+      },
+
+      // Group by taskGroupId
       {
         $group: {
-          _id: '$taskGroupId',
+          _id: '$taskGroupId', // Group tasks by taskGroupId
           taskGroupId: { $first: '$taskGroupId' },
           taskDescription: { $first: '$taskDescription' },
           deadline: { $first: '$deadline' },
-          assignedTo: {  
-            $push: { 
-              salesman: '$assignedTo', 
-              status: '$status' 
-            }
+          assignedTo: {
+            $push: {
+              salesman: '$assignedTo',
+              status: '$status',
+              createdAt: '$createdAt', // Include createdAt in the group to maintain order in assignedTo
+            },
           },
         },
       },
+
+      // Optionally, ensure the tasks inside each group are also sorted by createdAt
+      {
+        $project: {
+          taskGroupId: 1,
+          taskDescription: 1,
+          deadline: 1,
+          assignedTo: {
+            $sortArray: {
+              input: '$assignedTo',
+              sortBy: { createdAt: 1 }, // Sort assigned users by createdAt
+            },
+          },
+        },
+      },
+
+      // Sort the grouped tasks by createdAt at the task level (optional)
+      { 
+        $sort: { 'taskDescription': 1 } // You can replace this with sorting based on another field if required
+      }
     ]);
 
+    // Check if tasks exist
     if (!tasks.length) {
       return res.status(404).json({ message: 'No tasks found for this supervisor' });
     }
 
+    // Send the grouped and sorted tasks as response
     res.status(200).json(tasks);
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
