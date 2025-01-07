@@ -25,5 +25,7 @@ router.get('/get-company/:username', companyController.getCompanyByUsername);
 router.get('/branches', companyController.getAllBranches);
 // Route to get all supervisors
 router.get('/supervisors', companyController.getAllSupervisors);
+// Route to get all supervisors
+router.get('/salesmans', companyController.getAllSalesman);
  
 module.exports = router;

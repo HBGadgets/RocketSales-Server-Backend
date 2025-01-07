@@ -322,3 +322,78 @@ exports.getAllSupervisors = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.getAllSalesman = async (req, res) => {
+  try {
+    // Fetch all companies with their branches, supervisors, and salesmen
+    const companies = await Company.find(
+      {},
+      'companyName _id branches.branchName branches._id branches.branchLocation branches.supervisors.supervisorName branches.supervisors._id branches.supervisors.salesmen'
+    );
+
+    if (!companies.length) {
+      return res.status(404).json({ message: 'No companies found' });
+    }
+
+    // Map through companies to extract branches, supervisors, and salesmen
+    const result = companies
+      .map(company => {
+        // Map through branches
+        const branchesWithSalesmen = company.branches
+          .map(branch => {
+            const supervisorsWithSalesmen = branch.supervisors
+              .map(supervisor => {
+                // Only include supervisors with salesmen
+                const salesmen = supervisor.salesmen.filter(salesman => salesman); // Remove empty salesmen
+                if (salesmen.length > 0) {
+                  return {
+                    _id: supervisor._id, // Supervisor ID
+                    supervisorName: supervisor.supervisorName,
+                    salesmen: salesmen.map(salesman => ({
+                      _id: salesman._id, // Salesman ID
+                      salesmanName: salesman.salesmanName,
+                      salesmanEmail: salesman.salesmanEmail,
+                      salesmanPhone: salesman.salesmanPhone,
+                      salesmanUsername: salesman.salesmanUsername,
+                      salesmanPassword: salesman.salesmanPassword,
+                    })),
+                  };
+                }
+                return null; // Skip supervisors without salesmen
+              })
+              .filter(supervisor => supervisor !== null); // Remove supervisors without salesmen
+
+            // Only include branches with supervisors having salesmen
+            if (supervisorsWithSalesmen.length > 0) {
+              return {
+                _id: branch._id, // Branch ID
+                branchName: branch.branchName,
+                branchLocation: branch.branchLocation,
+                supervisors: supervisorsWithSalesmen,
+              };
+            }
+            return null; // Skip branches without supervisors with salesmen
+          })
+          .filter(branch => branch !== null); // Remove branches without supervisors with salesmen
+
+        // Exclude companies with no valid branches
+        if (branchesWithSalesmen.length > 0) {
+          return {
+            _id: company._id, // Company ID
+            companyName: company.companyName,
+            branches: branchesWithSalesmen,
+          };
+        }
+        return null; // Skip companies without valid branches
+      })
+      .filter(company => company !== null); // Remove companies without valid branches
+
+    if (!result.length) {
+      return res.status(404).json({ message: 'No salesmen found in any branch' });
+    }
+
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
