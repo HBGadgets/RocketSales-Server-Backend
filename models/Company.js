@@ -31,7 +31,8 @@ const branchSchema = new mongoose.Schema({
 
 const companySchema = new mongoose.Schema({
   companyName: { type: String, required: true },  
-  companyEmail: { type: String , required: true},                  
+  companyEmail: { type: String , required: true},   
+  companyPhone: { type: String, required: false},               
   ownerName: { type: String, required: true },     
   ownerEmail: { type: String,required: true },                    
   gstNo: { type: String },         

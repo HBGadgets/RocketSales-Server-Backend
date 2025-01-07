@@ -7,6 +7,7 @@ exports.createCompany = async (req, res) => {
   const {
     companyName,
     companyEmail,
+    companyPhone,
     ownerName,
     ownerEmail,
     gstNo,
@@ -40,6 +41,7 @@ exports.createCompany = async (req, res) => {
     const newCompany = new Company({
       companyName,
       companyEmail,
+      companyPhone,
       ownerName,
       ownerEmail,
       gstNo,
@@ -105,6 +107,7 @@ exports.updateCompany = async (req, res) => {
   const {
     companyName,
     companyEmail,
+    companyPhone,
     ownerName,
     ownerEmail,
     gstNo,
@@ -143,6 +146,7 @@ exports.updateCompany = async (req, res) => {
     // Update the company details
     company.companyName = companyName || company.companyName;
     company.companyEmail = companyEmail || company.companyEmail;
+    company.companyPhone = companyPhone || company.companyPhone;
     company.ownerName = ownerName || company.ownerName;
     company.ownerEmail = ownerEmail || company.ownerEmail;
     company.gstNo = gstNo || company.gstNo;
