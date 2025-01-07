@@ -5,7 +5,13 @@ const User = require("../models/User");
 // Add a Supervisor
 exports.addSupervisor = async (req, res) => {
     const { companyId, branchId } = req.params;
-    const { supervisorName, supervisorUsername, supervisorPassword } = req.body;
+    const {
+      supervisorName,
+      supervisorEmail,
+      supervisorPhone,
+      supervisorUsername,
+      supervisorPassword,
+    } = req.body;
   
     // Ensure supervisorUsername is provided
     if (!supervisorUsername) {
@@ -36,7 +42,7 @@ exports.addSupervisor = async (req, res) => {
         return res.status(400).json({ message: 'Username already exists' });
       }
       // Check if the email already exists in the User collection (assuming email is generated)
-      const supervisorEmail = `${supervisorUsername}@supervisor.com`;
+      // const supervisorEmail = `${supervisorUsername}@supervisor.com`;
       const existingUserByEmail = await User.findOne({ email: supervisorEmail });
       if (existingUserByEmail) {
         return res.status(400).json({ message: 'Email already exists in the system' });
@@ -44,6 +50,8 @@ exports.addSupervisor = async (req, res) => {
     
       const newSupervisor = {
         supervisorName,
+        supervisorEmail,
+        supervisorPhone,
         supervisorUsername,
         supervisorPassword,
         salesmen: [],
@@ -56,7 +64,7 @@ exports.addSupervisor = async (req, res) => {
     const newUser = new User({
       username: supervisorUsername,
       password: supervisorPassword,
-      email: supervisorEmail,
+      // email: supervisorEmail,
       role: 4,
     });
     await newUser.save();
@@ -91,7 +99,13 @@ exports.getSupervisors = async (req, res) => {
 // Update Supervisor
 exports.updateSupervisor = async (req, res) => {
   const { companyId, branchId, supervisorId } = req.params;
-  const { supervisorName, supervisorUsername, supervisorPassword } = req.body;
+  const {
+    supervisorName,
+    supervisorEmail,
+    supervisorPhone,
+    supervisorUsername,
+    supervisorPassword,
+  } = req.body;
 
   try {
     const company = await Company.findById(companyId);
@@ -119,6 +133,8 @@ exports.updateSupervisor = async (req, res) => {
       const oldUsername = supervisor.supervisorUsername;
   
     supervisor.supervisorName = supervisorName || supervisor.supervisorName;
+    supervisor.supervisorEmail = supervisorEmail || supervisor.supervisorEmail;
+    supervisor.supervisorPhone = supervisorPhone || supervisor.supervisorPhone;
     supervisor.supervisorUsername = supervisorUsername || supervisor.supervisorUsername;
     supervisor.supervisorPassword = supervisorPassword || supervisor.supervisorPassword;
 
@@ -128,7 +144,7 @@ exports.updateSupervisor = async (req, res) => {
      if (user) {
        user.username = supervisorUsername;
        user.password = supervisorPassword;
-       user.email = supervisorEmail;
+      //  user.email = supervisorEmail;
        await user.save();
      }  
     res.status(200).json({ message: 'Supervisor updated successfully', supervisor });

@@ -9,6 +9,7 @@ const branchRoutes = require('./routes/branchRoutes');
 const supervisorRoutes = require('./routes/supervisorRoutes');
 const salesmanRoutes = require('./routes/salesmanRoutes');
 const taskRoutes = require('./routes/taskRoutes');
+// const attendanceRoutes = require('./routes/attendanceRoutes');
 const connectDB = require("./config/db");
 
 const app = express();
@@ -16,7 +17,8 @@ const PORT = process.env.PORT || 5000;
 
 // CORS options
 const corsOptions = {
-  origin: process.env.FRONTEND_URL, // This will change based on your .env
+  // origin: process.env.FRONTEND_URL, // This will change based on your .env
+  origin: "*", // Allow requests from any origin
   methods: ["GET", "POST","PUT","DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
@@ -32,7 +34,7 @@ app.use('/api', branchRoutes);
 app.use('/api', supervisorRoutes);  // For Supervisor CRUD
 app.use('/api', salesmanRoutes);
 app.use('/api', taskRoutes);
-
+// app.use('/api/attendance', attendanceRoutes);
 // Connect to MongoDB
 // mongoose
 //   .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })

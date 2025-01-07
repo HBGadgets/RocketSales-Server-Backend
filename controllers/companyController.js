@@ -249,6 +249,8 @@ exports.getAllBranches = async (req, res) => {
           _id: branch._id,
           branchName: branch.branchName,
           branchLocation: branch.branchLocation,
+          branchEmail:branch.branchEmail,
+          branchPhone:branch.branchPhone,
           branchUsername:branch.branchUsername,
           branchPassword: branch.branchPassword
         })),
@@ -289,7 +291,10 @@ exports.getAllSupervisors = async (req, res) => {
                 supervisors: supervisors.map(supervisor => ({
                   _id: supervisor._id,  // Include supervisor ID
                   supervisorName: supervisor.supervisorName,
+                  supervisorEmail: supervisor.supervisorEmail,
+                  supervisorPhone: supervisor.supervisorPhone,
                   supervisorUsername: supervisor.supervisorUsername,
+                  supervisorPassword: supervisor.supervisorPassword
                 })),
               };
             }

@@ -4,8 +4,14 @@ const User = require("../models/User");
 // Add a Branch to a Company
 exports.addBranch = async (req, res) => {
   const { companyId } = req.params;
-  const { branchName, branchLocation, branchUsername, branchPassword } =
-    req.body;
+  const {
+    branchName,
+    branchLocation,
+    branchEmail,
+    branchPhone,
+    branchUsername,
+    branchPassword
+  } = req.body;
 
   try {
     const company = await Company.findById(companyId);
@@ -16,6 +22,8 @@ exports.addBranch = async (req, res) => {
     const newBranch = {
       branchName,
       branchLocation,
+      branchEmail,
+      branchPhone,
       branchUsername,
       branchPassword,
       supervisors: [], // Initially empty supervisors array
@@ -41,7 +49,7 @@ exports.addBranch = async (req, res) => {
     }
 
     // Check if the email already exists in the User collection (assuming email is generated)
-    const branchEmail = `${branchUsername}@branch.com`;
+    // const branchEmail = `${branchUsername}@branch.com`;
     const existingUserByEmail = await User.findOne({ email: branchEmail });
     if (existingUserByEmail) {
       return res
@@ -54,7 +62,7 @@ exports.addBranch = async (req, res) => {
       const newUser = new User({
         username: branchUsername,
         password: branchPassword,
-        email: branchEmail,
+        // email: branchEmail,
         role: 3,
       });
       await newUser.save();
@@ -86,8 +94,14 @@ exports.getBranches = async (req, res) => {
 // Update a Branch
 exports.updateBranch = async (req, res) => {
   const { companyId, branchId } = req.params;
-  const { branchName, branchLocation, branchUsername, branchPassword } =
-    req.body;
+    const {
+      branchName,
+      branchLocation,
+      branchEmail,
+      branchPhone,
+      branchUsername,
+      branchPassword
+    } = req.body;
 
   try {
     const company = await Company.findById(companyId);
@@ -106,11 +120,13 @@ exports.updateBranch = async (req, res) => {
         return res.status(400).json({ message: 'Username already exists' });
       }
     }
-    const branchEmail = `${branchUsername}@branch.com`;
+    // const branchEmail = `${branchUsername}@branch.com`;
     const oldUsername = branch.branchUsername;
 
     branch.branchName = branchName || branch.branchName;
     branch.branchLocation = branchLocation || branch.branchLocation;
+    branch.branchEmail = branchEmail || branch.branchEmail;
+    branch.branchPhone = branchPhone || branch.branchPhone;
     branch.branchUsername = branchUsername || branch.branchUsername;
     branch.branchPassword = branchPassword || branch.branchPassword;
 
@@ -121,6 +137,7 @@ exports.updateBranch = async (req, res) => {
        user.username = branchUsername;
        user.password = branchPassword;
        user.email = branchEmail;
+      //  user.email = branch.branchEmail || `NA`;
        await user.save();
      }
 

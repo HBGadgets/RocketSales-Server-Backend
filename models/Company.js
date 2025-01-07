@@ -12,6 +12,8 @@ const salesmanSchema = new mongoose.Schema({
 const supervisorSchema = new mongoose.Schema({
   supervisorName: { type: String, required: true },
   // supervisorEmail: { type: String, required: true, unique: true },
+  supervisorEmail: { type: String, required: false }, // Optional email
+  supervisorPhone: { type: String, required: false }, // Optional phone number
   supervisorUsername: { type: String, required: true, unique: true, sparse: true, },
   supervisorPassword: { type: String, required: true },
   salesmen: [salesmanSchema],  // Array of salesmen under the supervisor
@@ -20,6 +22,8 @@ const supervisorSchema = new mongoose.Schema({
 const branchSchema = new mongoose.Schema({
   branchName: { type: String, required: true },
   branchLocation: { type: String, required: true },
+  branchEmail: { type: String, required: false }, // Optional email
+  branchPhone: { type: String, required: false }, // Optional phone number
   branchUsername: { type: String, required: true, unique: true,sparse: true, },
   branchPassword: { type: String, required: true },
   supervisors: [supervisorSchema],  // Array of supervisors under the branch
