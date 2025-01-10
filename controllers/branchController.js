@@ -1,10 +1,12 @@
 const Company = require("../models/Company"); // Ensure the model name has the correct casing
 const User = require("../models/User");
+const mongoose = require('mongoose');
 
 // Add a Branch to a Company
 exports.addBranch = async (req, res) => {
-  const { companyId } = req.params;
+  // const { companyId } = req.params;
   const {
+    companyId,
     branchName,
     branchLocation,
     branchEmail,
@@ -18,8 +20,9 @@ exports.addBranch = async (req, res) => {
     if (!company) {
       return res.status(404).json({ message: "Company not found" });
     }
-
+    const branchId = new mongoose.Types.ObjectId();
     const newBranch = {
+      _id: branchId,
       branchName,
       branchLocation,
       branchEmail,
@@ -50,20 +53,22 @@ exports.addBranch = async (req, res) => {
 
     // Check if the email already exists in the User collection (assuming email is generated)
     // const branchEmail = `${branchUsername}@branch.com`;
-    const existingUserByEmail = await User.findOne({ email: branchEmail });
-    if (existingUserByEmail) {
-      return res
-        .status(400)
-        .json({ message: "Email already exists in the system" });
-    }
+    // const existingUserByEmail = await User.findOne({ email: branchEmail });
+    // if (existingUserByEmail) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Email already exists in the system" });
+    // }
     company.branches.push(newBranch);
     await company.save();
       // Add branch to User collection
       const newUser = new User({
         username: branchUsername,
         password: branchPassword,
-        // email: branchEmail,
+        email: branchEmail,
         role: 3,
+        companyId:companyId,
+        branchId: branchId,
       });
       await newUser.save();
 
