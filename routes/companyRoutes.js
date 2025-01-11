@@ -1,5 +1,6 @@
 const express = require('express');
 const companyController = require('../controllers/companyController');
+const authenticate = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
@@ -22,10 +23,10 @@ router.get('/get-company/:username', companyController.getCompanyByUsername);
 
 
 // Route to get all branches of all companies
-router.get('/branches', companyController.getAllBranches);
+router.get('/branches',authenticate, companyController.getAllBranches);
 // Route to get all supervisors
-router.get('/supervisors', companyController.getAllSupervisors);
+router.get('/supervisors',authenticate, companyController.getAllSupervisors);
 // Route to get all supervisors
-router.get('/salesmans', companyController.getAllSalesman);
+router.get('/salesmans',authenticate, companyController.getAllSalesman);
  
 module.exports = router;
