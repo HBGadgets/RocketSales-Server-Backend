@@ -61,6 +61,7 @@ exports.createCompany = async (req, res) => {
       email: companyEmail, // Use company email
       password: companyPassword, // Use company password
       role: 2, // Default role set to 2 (as requested)
+      companyId: company._id,
     });
 
     // Save the new user
@@ -80,15 +81,7 @@ exports.createCompany = async (req, res) => {
   }
 };
 
-// Get all companies  
-exports.getAllCompanies = async (req, res) => {
-  try {
-    const companies = await Company.find();
-    res.status(200).json(companies);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
+
 // Get only companies without branches
 exports.getOnlyCompanies = async (req, res) => {
   try {
@@ -233,12 +226,39 @@ exports.getCompanyByUsername = async (req, res) => {
 };
 
 // ---------------------------------------superadmin
-// Get all branches of all companies
+
+exports.getAllCompanies = async (req, res) => {
+  try {
+    const companies = await Company.find();
+    res.status(200).json(companies);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 exports.getAllBranches = async (req, res) => {
   try {
-    // Fetch all companies
-    const companies = await Company.find({}, 'companyName branches');
+    let role = req.user.role;
+    let companies;
+    if (role==1) {
+      companies = await Company.find({}, 'companyName branches');
+      
+    }
+    else if (role == 2) {
+      const companyId = req.user.companyId;
+      console.log("companyId",companyId)
+      // Fetch branches for the specific company
+      companies = await Company.findById(companyId, 'companyName branches');
+      companies = companies ? [companies] : [];
+    console.log(companies);
 
+
+    }
+    // Fetch all companies
+    // const companies = await Company.find({}, 'companyName branches');
+   
+    // const companies = await Company.findById(companyId, 'companyName branches');
+    
     if (!companies.length) {
       return res.status(404).json({ message: 'No companies found' });
     }
@@ -270,11 +290,52 @@ exports.getAllBranches = async (req, res) => {
   }
 };
 
-// Get all supervisors of all companies and branches
 exports.getAllSupervisors = async (req, res) => {
   try {
+    let role = req.user.role;
+    let companies;
+    if (role==1) {
+      // companies = await Company.find({}, 'companyName branches');
+    companies = await Company.find({}, 'companyName _id branches.branchName branches._id branches.branchLocation branches.supervisors');
+    }
+    else if (role == 2) {
+      const companyId = req.user.companyId;
+      console.log("companyId",companyId)
+      // Fetch branches for the specific company
+      companies = await Company.findById(companyId, 'companyName _id branches.branchName branches._id branches.branchLocation branches.supervisors');
+      companies = companies ? [companies] : [];
+      console.log(companies);
+    }
+    else if (role == 3) {
+      const companyId = req.user.companyId;
+      const branchId = req.user.branchId;
+      console.log("companyId",companyId)
+      console.log("branchId",branchId)
+
+      // Fetch branches for the specific company
+      // companies = await Company.findById(
+      //   {
+      //     _id: companyId, // Match the company ID
+      //     "branches._id": branchId // Match the branch ID within the branches array
+      //   },
+      //    'companyName _id branches.branchName branches._id branches.branchLocation branches.supervisors');
+      companies = await Company.findOne(
+        {
+          _id: companyId, // Match the company by companyId
+          "branches._id": branchId // Match the specific branchId in the branches array
+        },
+        {
+          companyName: 1, // Include the company name
+          _id: 1, // Include the company ID
+          "branches.$": 1, // Only include the matched branch
+        }
+      );
+
+      companies = companies ? [companies] : [];
+      console.log(companies);
+    }
     // Fetch all companies with their branches and supervisors
-    const companies = await Company.find({}, 'companyName _id branches.branchName branches._id branches.branchLocation branches.supervisors');
+    // const companies = await Company.find({}, 'companyName _id branches.branchName branches._id branches.branchLocation branches.supervisors');
 
     if (!companies.length) {
       return res.status(404).json({ message: 'No companies found' });
@@ -329,11 +390,83 @@ exports.getAllSupervisors = async (req, res) => {
 
 exports.getAllSalesman = async (req, res) => {
   try {
-    // Fetch all companies with their branches, supervisors, and salesmen
-    const companies = await Company.find(
+    let role = req.user.role;
+    if (role==1) {
+      // companies = await Company.find({}, 'companyName branches');
+    // companies = await Company.find({}, 'companyName _id branches.branchName branches._id branches.branchLocation branches.supervisors');
+    companies = await Company.find(
       {},
       'companyName _id branches.branchName branches._id branches.branchLocation branches.supervisors.supervisorName branches.supervisors._id branches.supervisors.salesmen'
-    );
+    ); 
+  }
+    else if (role == 2) {
+      const companyId = req.user.companyId;
+      console.log("companyId",companyId)
+      // Fetch branches for the specific company
+      // companies = await Company.findById(companyId, 'companyName _id branches.branchName branches._id branches.branchLocation branches.supervisors');
+      companies = await Company.findById(
+        companyId,
+        'companyName _id branches.branchName branches._id branches.branchLocation branches.supervisors.supervisorName branches.supervisors._id branches.supervisors.salesmen'
+      );
+      companies = companies ? [companies] : [];
+      console.log(companies);
+    }
+    else if (role == 3) {
+      const companyId = req.user.companyId;
+      const branchId = req.user.branchId;
+      console.log("companyId",companyId)
+      console.log("branchId",branchId)
+
+      // Fetch branches for the specific company
+      // companies = await Company.findById(
+      //   {
+      //     _id: companyId, // Match the company ID
+      //     "branches._id": branchId // Match the branch ID within the branches array
+      //   },
+      //    'companyName _id branches.branchName branches._id branches.branchLocation branches.supervisors');
+      companies = await Company.findOne(
+        {
+          _id: companyId, // Match the company by companyId
+          "branches._id": branchId // Match the specific branchId in the branches array
+        },
+        {
+          companyName: 1, // Include the company name
+          _id: 1, // Include the company ID
+         "branches": {
+            $elemMatch: {
+              _id: branchId, // Include only the branch that matches
+              "supervisors._id": supervisorId, // Further filter supervisors to include only the matched supervisor
+            }
+          } // Only include the matched branch
+        }
+      );
+
+      companies = companies ? [companies] : [];
+      console.log(companies);
+    }else if(role == 4){
+      const companyId = req.user.companyId;
+      const branchId = req.user.branchId;
+      const supervisorId = req.user.supervisorId;
+      console.log("companyId",companyId)
+      console.log("branchId",branchId)
+      console.log("supervisorId",supervisorId)
+      companies = await Company.findOne(
+        {
+          _id: companyId, // Match the company by companyId
+          "branches._id": branchId // Match the specific branchId in the branches array
+        },
+        {
+          companyName: 1, // Include the company name
+          _id: 1, // Include the company ID
+          "branches.$": 1, // Only include the matched branch
+        }
+      );
+    }
+    // Fetch all companies with their branches, supervisors, and salesmen
+    // const companies = await Company.find(
+    //   {},
+    //   'companyName _id branches.branchName branches._id branches.branchLocation branches.supervisors.supervisorName branches.supervisors._id branches.supervisors.salesmen'
+    // );
 
     if (!companies.length) {
       return res.status(404).json({ message: 'No companies found' });

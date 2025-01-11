@@ -1,5 +1,6 @@
 const Company = require('../models/Company');
 const User = require("../models/User");
+const mongoose = require('mongoose');
 
 
 // Add a Supervisor
@@ -43,12 +44,14 @@ exports.addSupervisor = async (req, res) => {
       }
       // Check if the email already exists in the User collection (assuming email is generated)
       // const supervisorEmail = `${supervisorUsername}@supervisor.com`;
-      const existingUserByEmail = await User.findOne({ email: supervisorEmail });
-      if (existingUserByEmail) {
-        return res.status(400).json({ message: 'Email already exists in the system' });
-      }
-    
+      // const existingUserByEmail = await User.findOne({ email: supervisorEmail });
+      // if (existingUserByEmail) {
+      //   return res.status(400).json({ message: 'Email already exists in the system' });
+      // }
+      const supervisorId = new mongoose.Types.ObjectId();
+      
       const newSupervisor = {
+        _id: supervisorId,
         supervisorName,
         supervisorEmail,
         supervisorPhone,
@@ -64,8 +67,12 @@ exports.addSupervisor = async (req, res) => {
     const newUser = new User({
       username: supervisorUsername,
       password: supervisorPassword,
-      // email: supervisorEmail,
+      email: supervisorEmail,
       role: 4,
+      companyId:companyId,
+      branchId: branchId,
+      supervisorId: supervisorId,
+
     });
     await newUser.save();
   

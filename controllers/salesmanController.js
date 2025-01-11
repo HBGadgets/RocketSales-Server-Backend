@@ -1,5 +1,6 @@
 const Company = require('../models/Company');
 const User = require("../models/User");
+const mongoose = require('mongoose');
 
 
 // Add a Salesman
@@ -37,12 +38,13 @@ exports.addSalesman = async (req, res) => {
     }
 
     // const salesmanEmail = `${salesmanUsername}@salesman.com`;
-    const existingUserByEmail = await User.findOne({ email: salesmanEmail });
-    if (existingUserByEmail) {
-      return res.status(400).json({ message: 'Email already exists in the system' });
-    }
-
+    // const existingUserByEmail = await User.findOne({ email: salesmanEmail });
+    // if (existingUserByEmail) {
+    //   return res.status(400).json({ message: 'Email already exists in the system' });
+    // }
+    const salesmanId = new mongoose.Types.ObjectId();
     const newSalesman = {
+      _id: salesmanId,
       salesmanName,
       salesmanEmail,
       salesmanPhone,
@@ -59,6 +61,10 @@ exports.addSalesman = async (req, res) => {
         password: salesmanPassword,
         email: salesmanEmail,
         role: 5,
+        companyId:companyId,
+        branchId: branchId,
+        supervisorId: supervisorId,
+        salesmanId: salesmanId,
       });
       await newUser.save();
 
