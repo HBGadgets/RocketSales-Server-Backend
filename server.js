@@ -17,8 +17,9 @@ const PORT = process.env.PORT || 5000;
 
 // CORS options
 const corsOptions = {
-  // origin: process.env.FRONTEND_URL, // This will change based on your .env
-  origin: "*", // Allow requests from any origin
+
+  origin: "*", 
+  
   methods: ["GET", "POST","PUT","DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };

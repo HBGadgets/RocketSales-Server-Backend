@@ -1,21 +1,23 @@
-const userService = require('../services/userService');
+const Superadmin = require('../models/superAdmin');
+const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 // Register user
+
 const registerUser = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
 
-    const existingUser = await userService.findUserByEmail(email);
-    const existingUsername = await userService.findUserByUsername(username);
-    if (existingUser) {
-      return res.status(400).json({ message: 'Email already exists' });
-    }else if (existingUsername){
+    const existingUsername = await Superadmin.findOne({username});
+
+    if (existingUsername){
       return res.status(400).json({ message: 'Username already exists' });
     }
-
-    const newUser = await userService.createUser({ username, email, password, role });
+    
+    const newUser = new Superadmin({ username, email, password, role});
+     await newUser.save();
     res.status(201).json({ userId: newUser._id, role: newUser.role });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -23,16 +25,29 @@ const registerUser = async (req, res) => {
 
 // Login user
 const loginUser = async (req, res) => {
+
+  const { username, password } = req.body;
+  let user;
+
   try {
-    const { username, password } = req.body;
     
-    // Find the user by username
-    const user = await userService.findUserByUsername(username);
-    if (!user || user.password !== password) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    user = await Superadmin.findOne({username});
+    if (!user) {
+      
+      user = await User.findOne({username});
+
+      if(!user){
+        return res.status(400).json({ message: 'Invalid credentials' });
+      }
+
     }
 
-    // Generate JWT token with user ID, username, and role
+    if(user.password !== password){
+
+      return res.status(400).json({ message: 'Incorrect Pasword or email Id' });
+
+    }
+
     const token = jwt.sign(
       { id: user._id, username: user.username, role: user.role },
       process.env.JWT_SECRET,
@@ -52,15 +67,21 @@ const loginUser = async (req, res) => {
 
 // Get user profile
 const getUserProfile = async (req, res) => {
-  try {
-    const userId = req.user.id; // Extract user ID from the decoded JWT
 
-    const user = await userService.findUserById(userId);
+  const userId = req.user.id; 
+  let user;
+  try {
+
+     user =  await Superadmin.findById(userId);
+    
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      
+       user =  await User.findById(userId);
+       if(!user){
+         return res.status(404).json({ message: 'User not found' });
+       }
     }
 
-    // Send user profile data (no password, only necessary fields)
     res.status(200).json({
       id: user._id,
       username: user.username,

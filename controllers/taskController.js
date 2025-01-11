@@ -4,8 +4,9 @@ const Company = require('../models/Company');
 
 // Add tasks to all or selected salesmen
 exports.addTasks = async (req, res) => {
+
   const { companyId, branchId, supervisorId } = req.params;
-  const { taskDescription, deadline, assignedTo } = req.body; // `assignedTo` is optional
+  const { taskDescription, deadline, assignedTo, latitude ,longitude } = req.body; 
 
   try {
     const company = await Company.findById(companyId);
@@ -42,6 +43,8 @@ exports.addTasks = async (req, res) => {
       taskDescription,
       status: 'Pending',
       deadline,
+      latitude,
+      longitude,
       assignedTo: salesman.salesmanUsername,
       assignedBy: supervisor.supervisorUsername,
     }));
