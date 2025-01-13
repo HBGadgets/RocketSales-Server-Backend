@@ -1,4 +1,4 @@
-const Company = require("../models/Company"); // Ensure the model name has the correct casing
+const Company = require("../models/Company"); 
 const User = require("../models/User");
 const mongoose = require('mongoose');
 
@@ -17,6 +17,7 @@ exports.addBranch = async (req, res) => {
 
   try {
     const company = await Company.findById(companyId);
+
     if (!company) {
       return res.status(404).json({ message: "Company not found" });
     }
@@ -29,9 +30,9 @@ exports.addBranch = async (req, res) => {
       branchPhone,
       branchUsername,
       branchPassword,
-      supervisors: [], // Initially empty supervisors array
+      supervisors: [], 
     };
-    // Check if branchName or branchUsername already exists in the company
+   
     const existingBranch = company.branches.find(
       (branch) =>
         branch.branchName === branchName ||
@@ -70,11 +71,11 @@ exports.addBranch = async (req, res) => {
         companyId:companyId,
         branchId: branchId,
       });
+
       await newUser.save();
 
-    res
-      .status(200)
-      .json({ message: "Branch added successfully", branch: newBranch });
+     res.status(201).json({ message: "Branch added successfully", branch: newBranch });
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

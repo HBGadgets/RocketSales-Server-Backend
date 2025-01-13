@@ -19,25 +19,13 @@ exports.createCompany = async (req, res) => {
   } = req.body;
 
   try {
-    // Check if the email already exists in the Company collection (optional)
-    const existingCompanyByEmail = await Company.findOne({ companyEmail });
-    if (existingCompanyByEmail) {
-      return res.status(400).json({ message: "Company with this email already exists" });
-    }
-
-    // Check if the username already exists in the User collection
+    
     const existingUserByUsername = await User.findOne({ username: companyUsername });
     if (existingUserByUsername) {
       return res.status(400).json({ message: "Username already exists" });
     }
 
-    // Check if the email already exists in the User collection
-    const existingUserByEmail = await User.findOne({ email: companyEmail });
-    if (existingUserByEmail) {
-      return res.status(400).json({ message: "Email already exists in the system" });
-    }
-
-    // Create a new company document
+  
     const newCompany = new Company({
       companyName,
       companyEmail,
@@ -49,25 +37,24 @@ exports.createCompany = async (req, res) => {
       businessType,
       branches: [],
       companyUsername,
-      companyPassword, // Plain password for now
+      companyPassword, 
     });
 
-    // Save the company to the database
+    
     const company = await newCompany.save();
 
-    // Create a new user associated with this company
     const newUser = new User({
-      username: companyUsername, // Use company username as the user's username
-      email: companyEmail, // Use company email
-      password: companyPassword, // Use company password
-      role: 2, // Default role set to 2 (as requested)
+      username: companyUsername, 
+      email: companyEmail, 
+      password: companyPassword,
+      role: 2, 
       companyId: company._id,
     });
 
-    // Save the new user
+   
     await newUser.save();
 
-    // Return the created company and user data as response
+   
     res.status(201).json({
       company: company,
       user: {
@@ -85,7 +72,7 @@ exports.createCompany = async (req, res) => {
 // Get only companies without branches
 exports.getOnlyCompanies = async (req, res) => {
   try {
-    // Exclude the `branches` field using .select()
+    
     const companies = await Company.find().select('-branches');
     res.status(200).json(companies);
   } catch (err) {
@@ -96,7 +83,7 @@ exports.getOnlyCompanies = async (req, res) => {
 
 // Update companies & also in user collection
 exports.updateCompany = async (req, res) => {
-  const { id } = req.params; // The ID of the company to update (from params, not body)
+  const { id } = req.params; 
   const {
     companyName,
     companyEmail,
@@ -112,7 +99,7 @@ exports.updateCompany = async (req, res) => {
   } = req.body;
 
   try {
-    // Find the existing company by ID
+    
     const company = await Company.findById(id);
     if (!company) {
       return res.status(404).json({ message: 'Company not found' });
@@ -171,19 +158,19 @@ exports.updateCompany = async (req, res) => {
 
 // Delete companies & also in user collection
 exports.deleteCompany = async (req, res) => {
-  const { id } = req.params; // The ID of the company to delete
+  const { id } = req.params; 
 
   try {
-    // Find the existing company by ID
+    
     const company = await Company.findById(id);
     if (!company) {
       return res.status(404).json({ message: 'Company not found' });
     }
-     // Delete all associated users: branches, supervisors, and salesmen
+     
      for (const branch of company.branches) {
-      // For each branch, delete supervisors and their salesmen
+      
       for (const supervisor of branch.supervisors) {
-        // Delete all salesmen under the supervisor
+        
         for (const salesman of supervisor.salesmen) {
           await User.deleteOne({ username: salesman.salesmanUsername });
         }
@@ -196,12 +183,7 @@ exports.deleteCompany = async (req, res) => {
       await User.deleteOne({ username: branch.branchUsername });
     }
 
-    // Find the associated user by companyUsername
-    // const user = await User.findOne({ username: company.companyUsername });
-    // if (user) {
-    //   // Delete the associated user
-    //   await user.deleteOne();
-    // }
+   
    // Delete the company user
       await User.deleteOne({ username: company.companyUsername });
 

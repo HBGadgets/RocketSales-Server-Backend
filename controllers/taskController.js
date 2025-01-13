@@ -169,9 +169,11 @@ exports.getTasksBySupervisor = async (req, res) => {
   }
 };
 //Update Task Status
+
 exports.updateTask = async (req, res) => {
-  const { taskGroupId } = req.params; // Use taskGroupId for grouping
-  const { taskDescription, deadline, assignedTo } = req.body;
+  
+  const { taskGroupId } = req.params; 
+  const { taskDescription, deadline, assignedTo,  latitude ,longitude , complitionDate } = req.body;
 
   try {
     const tasks = await Task.find({ taskGroupId });

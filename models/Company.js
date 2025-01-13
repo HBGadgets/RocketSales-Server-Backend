@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const salesmanSchema = new mongoose.Schema({
   salesmanName: { type: String, required: true },
-  salesmanEmail: { type: String, required: true, unique: true,sparse: true, },
+  salesmanEmail: { type: String,sparse: true, },
   salesmanPhone: { type: String, required: true },
   salesmanUsername: { type: String, required: true, unique: true,sparse: true, },
   salesmanPassword: { type: String, required: true },
@@ -11,27 +11,26 @@ const salesmanSchema = new mongoose.Schema({
 
 const supervisorSchema = new mongoose.Schema({
   supervisorName: { type: String, required: true },
-  // supervisorEmail: { type: String, required: true, unique: true },
-  supervisorEmail: { type: String, required: false, sparse: true,}, // Optional email
-  supervisorPhone: { type: String, required: false }, // Optional phone number
+  supervisorEmail: { type: String, sparse: true,}, 
+  supervisorPhone: { type: String, required: false }, 
   supervisorUsername: { type: String, required: true, unique: true, sparse: true, },
   supervisorPassword: { type: String, required: true },
-  salesmen: [salesmanSchema],  // Array of salesmen under the supervisor
+  salesmen: [salesmanSchema], 
 });
 
 const branchSchema = new mongoose.Schema({
   branchName: { type: String, required: true },
   branchLocation: { type: String, required: true },
-  branchEmail: { type: String, required: false, sparse: true,}, // Optional email
-  branchPhone: { type: String, required: false }, // Optional phone number
+  branchEmail: { type: String, sparse: true,},
+  branchPhone: { type: String, required: false }, 
   branchUsername: { type: String, required: true, unique: true,sparse: true, },
   branchPassword: { type: String, required: true },
-  supervisors: [supervisorSchema],  // Array of supervisors under the branch
+  supervisors: [supervisorSchema], 
 });
 
 const companySchema = new mongoose.Schema({
   companyName: { type: String, required: true },  
-  companyEmail: { type: String , required: true},   
+  companyEmail: { type: String },   
   companyPhone: { type: String, required: false},               
   ownerName: { type: String, required: true },     
   ownerEmail: { type: String,required: true },                    

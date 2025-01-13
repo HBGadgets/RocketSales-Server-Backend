@@ -31,17 +31,13 @@ exports.addSalesman = async (req, res) => {
       return res.status(400).json({ message: 'Salesman username already exists' });
     }
 
-    // Check if the username already exists in the User collection
+   
     const existingUserByUsername = await User.findOne({ username: salesmanUsername });
     if (existingUserByUsername) {
       return res.status(400).json({ message: 'Username already exists' });
     }
 
-    // const salesmanEmail = `${salesmanUsername}@salesman.com`;
-    // const existingUserByEmail = await User.findOne({ email: salesmanEmail });
-    // if (existingUserByEmail) {
-    //   return res.status(400).json({ message: 'Email already exists in the system' });
-    // }
+  
     const salesmanId = new mongoose.Types.ObjectId();
     const newSalesman = {
       _id: salesmanId,
