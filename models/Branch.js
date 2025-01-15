@@ -8,11 +8,12 @@ const branchSchema = new mongoose.Schema({
      branchLocation: { type: String, required: true },
      branchEmail: { type: String, sparse: true,},
      branchPhone: { type: String, required: false }, 
-     branchUsername: { type: String, required: true, unique: true,sparse: true, },
+     username: { type: String, required: true, unique: true,sparse: true, },
      password: { type: String, required: true },
      supervisors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' }], 
-     company:{ type: mongoose.Schema.Types.ObjectId, ref: 'Company' }
-   },
+     companyId:{ type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
+     role: { type: Number, default: 0 }, 
+    },
    {
      timestamps: true
    });

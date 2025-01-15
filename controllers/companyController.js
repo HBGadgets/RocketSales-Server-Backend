@@ -6,8 +6,6 @@ const User = require("../models/User");
 exports.createCompany = async (req, res) => {
 
         const user = req.user.role;
-        console.log(user,"asdfghj")
-
   const {
     companyName,
     companyEmail,
@@ -17,7 +15,7 @@ exports.createCompany = async (req, res) => {
     gstNo,
     panNo,
     businessType,
-    branches,
+    branchesIds,
     username,
     password,
   } = req.body;
@@ -39,9 +37,10 @@ exports.createCompany = async (req, res) => {
       gstNo,
       panNo,
       businessType,
-      branches,
+      branchesIds,
       username,
       password, 
+      role:2
     });
 
     const company = await newCompany.save();
@@ -57,10 +56,10 @@ exports.createCompany = async (req, res) => {
 
 
 // Get only companies without branches
-exports.getOnlyCompanies = async (req, res) => {
+exports.getCompanies = async (req, res) => {
   try {
     
-    const companies = await Company.find().select('-branches');
+    const companies = await Company.find()
     res.status(200).json(companies);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -68,7 +67,8 @@ exports.getOnlyCompanies = async (req, res) => {
 };
 
 
-// Update companies & also in user collection
+
+// Update companies
 exports.updateCompany = async (req, res) => {
   const { id } = req.params; 
   const {
@@ -92,10 +92,10 @@ exports.updateCompany = async (req, res) => {
       return res.status(404).json({ message: 'Company not found' });
     }
 
-    // Save the old username and email for user search later
+    
     const oldUsername = company.companyUsername;
     const oldEmail = company.companyEmail;
-    /// Validate if the new username or email already exists in the User collection
+
     if (companyUsername && companyUsername !== oldUsername) {
       const existingUserByUsername = await User.findOne({ username: companyUsername });
       if (existingUserByUsername) {

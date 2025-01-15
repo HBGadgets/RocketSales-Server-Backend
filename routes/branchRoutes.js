@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const branchController = require('../controllers/branchController');
+const { addBranch, updateBranch, deleteBranch, getBranches } = require('../controllers/branchController');
+const authenticate = require('../middlewares/authMiddleware');
 
-// Branch CRUD
-router.post('/Company/branch', branchController.addBranch);
-router.get('/Company/:companyId/branches', branchController.getBranches);
-router.put('/Company/:companyId/branch/:branchId', branchController.updateBranch);
-router.delete('/Company/:companyId/branch/:branchId', branchController.deleteBranch);
+                    // Branch CRUD
+router.post('/createbranch',authenticate, addBranch);
+router.get('/getbranches',authenticate,getBranches);
+
+
+router.put('/Company/:companyId/branch/:branchId',updateBranch);
+router.delete('/Company/:companyId/branch/:branchId', deleteBranch);
 
 module.exports = router;
 

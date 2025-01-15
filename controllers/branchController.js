@@ -3,11 +3,14 @@ const Company = require("../models/Company");
 const User = require("../models/User");
 const mongoose = require('mongoose');
 
-// Add a Branch to a Company
+
+
+                // Add a Branch to a Company
+
 exports.addBranch = async (req, res) => {
-  // const { companyId } = req.params;
+ 
   const {
-    company,
+    companyId,
     branchName,
     branchLocation,
     branchEmail,
@@ -18,7 +21,7 @@ exports.addBranch = async (req, res) => {
   } = req.body;
 
   try {
-    const findCompany = await Company.findById(company);
+    const findCompany = await Company.findById(companyId);
     const findBranch = await Branch.findOne({username})
 
     if (!findCompany) {
@@ -28,9 +31,8 @@ exports.addBranch = async (req, res) => {
       return res.status(404).json({ message: "Branch with this username already exist" });
     }
 
-    const branchId = new mongoose.Types.ObjectId();
     const newBranch =  new Branch ({
-      company,
+      companyId,
       branchName,
       branchLocation,
       branchEmail,
@@ -38,21 +40,11 @@ exports.addBranch = async (req, res) => {
       username,
       password,
       supervisors,
+      role: 3,
     })
    
     await newBranch.save();
      
-      const newUser = new User({
-        username: branchUsername,
-        password: branchPassword,
-        email: branchEmail,
-        role: 3,
-        companyId:company,
-        branchId: branchId,
-      });
-
-      await newUser.save();
-
      res.status(201).json({ message: "Branch added successfully", branch: newBranch });
 
   } catch (err) {
@@ -60,23 +52,33 @@ exports.addBranch = async (req, res) => {
   }
 };
 
-
-
 // Get All Branches of a Company
 exports.getBranches = async (req, res) => {
-  const { companyId } = req.params;
+  const { id } = req.user;
+  const {role} = req.user;
+
+  const ObjectId = mongoose.Types.ObjectId;
+  let Branches;
 
   try {
-    const company = await Company.findById(companyId);
-    if (!company) {
-      return res.status(404).json({ message: "Company not found" });
+
+      if(role=='superadmin'){
+         Branches = await Branch.find();
+      }else if(role =='company'){
+         Branches = await Branch.find({companyId: new ObjectId(id)});
+      }
+
+    if (!Branches) {
+      return res.status(404).json({ message: "Branches not found" });
     }
 
-    res.status(200).json({ branches: company.branches });
+    res.status(200).json({ Branches});
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
+
 
 // Update a Branch
 exports.updateBranch = async (req, res) => {

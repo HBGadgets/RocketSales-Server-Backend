@@ -1,6 +1,7 @@
 const Branch = require('../models/Branch');
+const Company = require('../models/Company');
 const salesMan = require('../models/salesMan');
-const Superadmin = require('../models/superAdmin');
+const Superadmin = require('../models/SuperAdmin');
 const Supervisor = require('../models/Supervisor');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
@@ -32,14 +33,22 @@ const loginUser = async (req, res) => {
   const { username, password } = req.body;
   let user;
 
+      if( username==null|| password==null){
+        return res.status(400).json({ message: 'Please Enter Valid Detail' });
+      }
+
   try {
     
     user = await Superadmin.findOne({username});
     if (!user) {
      
-      user = await Branch.findOne({username});
+      user = await Company.findOne({username});
 
     } else if(!user){
+
+      user = await Branch.findOne({username});
+
+    }  else if(!user){
 
       user = await Supervisor.findOne({username});
 

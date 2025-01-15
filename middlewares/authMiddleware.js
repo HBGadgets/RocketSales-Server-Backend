@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
-const Superadmin = require('../models/superAdmin');
 const Branch = require('../models/Branch');
 const Company = require('../models/Company');
 const Supervisor = require('../models/Supervisor');
 const salesMan = require('../models/salesMan');
+const Superadmin = require('../models/SuperAdmin');
 
 const authenticate = async(req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', ''); // Extract token from headers
@@ -25,8 +25,9 @@ const authenticate = async(req, res, next) => {
       sperr = true;
     } else if(!user) {
       user = await Company.findById(decoded.id);
-      req.user = { id: user._id, role: 'Company'}; 
+      req.user = { id:decoded, role: 'company'}; 
       sperr = true;
+
     }
      else if(!user) {
       user = await Branch.findById(decoded.id);
@@ -35,7 +36,7 @@ const authenticate = async(req, res, next) => {
     
     } else if(!user) {
       user = await Supervisor.findById(decoded.id);
-      req.user = { id: user._id, role: 'branch'}; 
+      req.user = { id: user._id, role: 'supervisor'}; 
       sperr = true;
     
     } else{
