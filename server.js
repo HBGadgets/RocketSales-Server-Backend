@@ -8,7 +8,6 @@ const companyRoutes = require('./routes/companyRoutes');
 const branchRoutes = require('./routes/branchRoutes');
 const supervisorRoutes = require('./routes/supervisorRoutes');
 const salesmanRoutes = require('./routes/salesmanRoutes');
-const taskRoutes = require('./routes/taskRoutes');
 const taskRoutesNew = require('./routes/taskRoutesNew');
 // const attendanceRoutes = require('./routes/attendanceRoutes');
 const connectDB = require("./config/db");

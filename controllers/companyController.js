@@ -4,6 +4,10 @@ const User = require("../models/User");
 
 // Create a new company
 exports.createCompany = async (req, res) => {
+
+        const user = req.user.role;
+        console.log(user,"asdfghj")
+
   const {
     companyName,
     companyEmail,
@@ -14,13 +18,13 @@ exports.createCompany = async (req, res) => {
     panNo,
     businessType,
     branches,
-    companyUsername,
-    companyPassword,
+    username,
+    password,
   } = req.body;
 
   try {
     
-    const existingUserByUsername = await User.findOne({ username: companyUsername });
+    const existingUserByUsername = await Company.findOne({ username: username });
     if (existingUserByUsername) {
       return res.status(400).json({ message: "Username already exists" });
     }
@@ -35,33 +39,16 @@ exports.createCompany = async (req, res) => {
       gstNo,
       panNo,
       businessType,
-      branches: [],
-      companyUsername,
-      companyPassword, 
+      branches,
+      username,
+      password, 
     });
 
-    
     const company = await newCompany.save();
-
-    const newUser = new User({
-      username: companyUsername, 
-      email: companyEmail, 
-      password: companyPassword,
-      role: 2, 
-      companyId: company._id,
-    });
-
-   
-    await newUser.save();
-
    
     res.status(201).json({
       company: company,
-      user: {
-        userId: newUser._id,
-        username: newUser.username,
-        role: newUser.role,
-      },
+     
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

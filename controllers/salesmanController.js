@@ -5,8 +5,8 @@ const mongoose = require('mongoose');
 
 // Add a Salesman
 exports.addSalesman = async (req, res) => {
-  const { companyId, branchId, supervisorId } = req.params;
-  const { salesmanName, salesmanEmail, salesmanPhone, salesmanUsername, salesmanPassword } = req.body;
+  // const { companyId, branchId, supervisorId } = req.params;
+  const { salesmanName, salesmanEmail, salesmanPhone, salesmanUsername, salesmanPassword,companyId, branchId, supervisorId } = req.body;
 
   try {
     const company = await Company.findById(companyId);

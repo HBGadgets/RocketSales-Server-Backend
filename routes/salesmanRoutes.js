@@ -1,11 +1,11 @@
 const express = require('express');
-const salesmanController = require('../controllers/salesmanController');
+const {addSalesman,getSalesmen,updateSalesman,deleteSalesman} = require('../controllers/salesmanController');
 const router = express.Router();
 
 // Salesman CRUD
-router.post('/Company/:companyId/branch/:branchId/supervisor/:supervisorId/salesman', salesmanController.addSalesman);
-router.get('/Company/:companyId/branch/:branchId/supervisor/:supervisorId/salesman', salesmanController.getSalesmen);
-router.put('/Company/:companyId/branch/:branchId/supervisor/:supervisorId/salesman/:salesmanId', salesmanController.updateSalesman);
-router.delete('/Company/:companyId/branch/:branchId/supervisor/:supervisorId/salesman/:salesmanId', salesmanController.deleteSalesman);
+router.post('/addsalesman', addSalesman);
+router.get('/Company/:companyId/branch/:branchId/supervisor/:supervisorId/salesman',getSalesmen);
+router.put('/Company/:companyId/branch/:branchId/supervisor/:supervisorId/salesman/:salesmanId', updateSalesman);
+router.delete('/Company/:companyId/branch/:branchId/supervisor/:supervisorId/salesman/:salesmanId', deleteSalesman);
 
 module.exports = router;

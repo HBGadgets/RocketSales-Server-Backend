@@ -3,7 +3,7 @@ const Task = require('../models/Task');
 const Company = require('../models/Company');
 
 
-// Assign Task to salesman
+                // Assign Task to salesman
 
 exports.addTasks = async (req, res) => {
 
@@ -46,7 +46,7 @@ exports.addTasks = async (req, res) => {
    };
    
 
-   //Get Tasks by Salesman
+                    //Get Tasks by Salesman
    exports.getTasksBySalesman = async (req, res) => {
        const { salesmanUsername } = req.params;
      
@@ -62,6 +62,7 @@ exports.addTasks = async (req, res) => {
        }
    };
 
+                    //  Get task by supervisor
 exports.getTasksBySupervisor = async (req, res) => {
   const { supervisorUsername } = req.params;
 
@@ -81,55 +82,63 @@ exports.getTasksBySupervisor = async (req, res) => {
   }
 };
 
+                    // Update task
 exports.updateTask = async (req, res) => {
   
   const { id } = req.params; 
-  const { taskDescription, deadline, assignedTo,  latitude ,longitude , complitionDate } = req.body;
+  const updates = req.body;
+
+  console.log(id,updates)
 
   try {
-    const tasks = await Task.findById(id);
+    const updatedtask = await Task.findOneAndUpdate({_id:id}, updates, {
+      new: true,
+      runValidators: true,
+    });
 
-    if (!tasks.length) {
-      return res.status(404).json({ message: 'No tasks found with the given group ID' });
-    }
-
-  
-    const currentSalesmen = tasks.map((task) => task.assignedTo);
-
-   
-    const salesmenToRemove = currentSalesmen.filter((salesman) => !assignedTo.includes(salesman));
-    const salesmenToAdd = assignedTo.filter((salesman) => !currentSalesmen.includes(salesman));
-    const salesmenToRetain = assignedTo.filter((salesman) => currentSalesmen.includes(salesman));
-
-    if (salesmenToRemove.length > 0) {
-      await Task.deleteMany({ taskGroupId, assignedTo: { $in: salesmenToRemove } });
-    }
-
-    const newTasks = salesmenToAdd.map((salesman) => ({
-      taskGroupId,
-      taskDescription,
-      deadline,
-      status: 'Pending',
-      assignedTo: salesman,
-      assignedBy: tasks[0].assignedBy, 
-    }));
-
-    if (newTasks.length > 0) {
-      await Task.insertMany(newTasks);
-    }
-
-    await Task.updateMany(
-      { taskGroupId, assignedTo: { $in: salesmenToRetain } },
-      {
-        $set: {
-          taskDescription: taskDescription || tasks[0].taskDescription,
-          deadline: deadline || tasks[0].deadline,
-        },
-      }
-    );
-
-    res.status(200).json({ message: 'Task updated successfully' });
+    res.status(200).json({updatedtask, message: 'Task updated successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
+                    //  Delete task
+exports.deleteTask = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+
+    const deletedTask = await Task.findByIdAndDelete(id);
+
+    if (!deletedTask) {
+      return res.status(404).json({ message: 'Tasks not found' });
+    }
+
+    res.status(200).json({ message: 'Tasks deleted successfully' });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+                    //  Update task status 
+exports.updateTaskStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body; 
+
+  try {
+    const task = await Task.findById(id);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    task.status = status || task.status;
+    await task.save();
+
+    res.status(200).json({ message: 'Task status updated successfully', task });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+

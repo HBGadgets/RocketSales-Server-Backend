@@ -1,32 +1,32 @@
 const express = require('express');
-const companyController = require('../controllers/companyController');
+const {createCompany,updateCompany,deleteCompany,getAllCompanies,getOnlyCompanies,getCompanyByUsername,getAllBranches,getAllSupervisors,getAllSalesman} = require('../controllers/companyController');
 const authenticate = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
 // Route for creating a new company
-router.post('/create-company', companyController.createCompany);
+router.post('/create-company',authenticate, createCompany);
 
 // Update company 
-router.put('/update-company/:id', companyController.updateCompany);
+router.put('/update-company/:id', updateCompany);
 
 // Delete company
-router.delete('/delete-company/:id', companyController.deleteCompany);
+router.delete('/delete-company/:id', deleteCompany);
 
 // Route for fetching all companies
-router.get('/get-companies-collection', companyController.getAllCompanies);
+router.get('/get-companies-collection', getAllCompanies);
 // Route for fetching all companies
-router.get('/get-companies', companyController.getOnlyCompanies);
+router.get('/get-companies', getOnlyCompanies);
 
 // Route for fetching a company by username
-router.get('/get-company/:username', companyController.getCompanyByUsername);
+router.get('/get-company/:username', getCompanyByUsername);
 
 
 // Route to get all branches of all companies
-router.get('/branches',authenticate, companyController.getAllBranches);
+router.get('/branches',authenticate, getAllBranches);
 // Route to get all supervisors
-router.get('/supervisors',authenticate, companyController.getAllSupervisors);
+router.get('/supervisors',authenticate, getAllSupervisors);
 // Route to get all supervisors
-router.get('/salesmans',authenticate, companyController.getAllSalesman);
+router.get('/salesmans',authenticate, getAllSalesman);
  
 module.exports = router;

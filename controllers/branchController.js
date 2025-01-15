@@ -1,3 +1,4 @@
+const Branch = require("../models/Branch");
 const Company = require("../models/Company"); 
 const User = require("../models/User");
 const mongoose = require('mongoose');
@@ -6,69 +7,47 @@ const mongoose = require('mongoose');
 exports.addBranch = async (req, res) => {
   // const { companyId } = req.params;
   const {
-    companyId,
+    company,
     branchName,
     branchLocation,
     branchEmail,
     branchPhone,
-    branchUsername,
-    branchPassword
+    username,
+    password,
+    supervisors
   } = req.body;
 
   try {
-    const company = await Company.findById(companyId);
+    const findCompany = await Company.findById(company);
+    const findBranch = await Branch.findOne({username})
 
-    if (!company) {
+    if (!findCompany) {
       return res.status(404).json({ message: "Company not found" });
     }
+    if (findBranch) {
+      return res.status(404).json({ message: "Branch with this username already exist" });
+    }
+
     const branchId = new mongoose.Types.ObjectId();
-    const newBranch = {
-      _id: branchId,
+    const newBranch =  new Branch ({
+      company,
       branchName,
       branchLocation,
       branchEmail,
       branchPhone,
-      branchUsername,
-      branchPassword,
-      supervisors: [], 
-    };
+      username,
+      password,
+      supervisors,
+    })
    
-    const existingBranch = company.branches.find(
-      (branch) =>
-        branch.branchName === branchName ||
-        branch.branchUsername === branchUsername
-    );
-    if (existingBranch) {
-      return res
-        .status(400)
-        .json({ message: "Branch name or username already exists" });
-    }
-
-    // Check if the username already exists in the User collection
-    const existingUserByUsername = await User.findOne({
-      username: branchUsername,
-    });
-    if (existingUserByUsername) {
-      return res.status(400).json({ message: "Username already exists" });
-    }
-
-    // Check if the email already exists in the User collection (assuming email is generated)
-    // const branchEmail = `${branchUsername}@branch.com`;
-    // const existingUserByEmail = await User.findOne({ email: branchEmail });
-    // if (existingUserByEmail) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: "Email already exists in the system" });
-    // }
-    company.branches.push(newBranch);
-    await company.save();
-      // Add branch to User collection
+    await newBranch.save();
+     
       const newUser = new User({
         username: branchUsername,
         password: branchPassword,
         email: branchEmail,
         role: 3,
-        companyId:companyId,
+        companyId:company,
         branchId: branchId,
       });
 
@@ -80,6 +59,8 @@ exports.addBranch = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
 
 // Get All Branches of a Company
 exports.getBranches = async (req, res) => {
