@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const Branch = require('../models/Branch');
 const Company = require('../models/Company');
 const Supervisor = require('../models/Supervisor');
-const salesMan = require('../models/salesMan');
+const Salesman = require('../models/Salesman');
 const Superadmin = require('../models/SuperAdmin');
 
 const authenticate = async(req, res, next) => {
@@ -40,7 +40,7 @@ const authenticate = async(req, res, next) => {
       sperr = true;
     
     } else{
-      user = await salesMan.findById(decoded.id);
+      user = await Salesman.findById(decoded.id);
       req.user = { id: user._id, role: 'salesman'}; 
       sperr = true;
     }

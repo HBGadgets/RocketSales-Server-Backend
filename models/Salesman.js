@@ -17,4 +17,4 @@ const salesmanSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('SalesMan', salesmanSchema);
+module.exports = mongoose.model('Salesman', salesmanSchema);

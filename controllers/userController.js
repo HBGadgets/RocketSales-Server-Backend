@@ -1,8 +1,8 @@
 const Branch = require('../models/Branch');
 const Company = require('../models/Company');
-const salesMan = require('../models/salesMan');
 const Superadmin = require('../models/SuperAdmin');
 const Supervisor = require('../models/Supervisor');
+const Salesman = require('../models/Salesman');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
@@ -54,7 +54,7 @@ const loginUser = async (req, res) => {
 
     } else if(!user){
 
-      user = await salesMan.findOne({username});
+      user = await Salesman.findOne({username});
 
     }else if (!user){
       return res.status(400).json({ message: 'Invalid credentials' });
