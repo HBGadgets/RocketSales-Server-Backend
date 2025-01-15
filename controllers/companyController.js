@@ -1,5 +1,6 @@
 //controller/company/controller.js
 const Company = require("../models/Company");
+const findSameUsername = require("../utils/findSameUsername");
 const User = require("../models/User");
 
 // Create a new company
@@ -22,8 +23,12 @@ exports.createCompany = async (req, res) => {
 
   try {
     
-    const existingUserByUsername = await Company.findOne({ username: username });
-    if (existingUserByUsername) {
+    // const existingUserByUsername = await Company.findOne({ username: username });
+    // if (existingUserByUsername) {
+    //   return res.status(400).json({ message: "Username already exists" });
+    // }
+    const existingUserByUsername = await findSameUsername(username);
+    if (existingUserByUsername.exists) {
       return res.status(400).json({ message: "Username already exists" });
     }
 
