@@ -6,10 +6,10 @@ const authenticate = require('../middlewares/authMiddleware');
                     // Branch CRUD
 router.post('/createbranch',authenticate, addBranch);
 router.get('/getbranches',authenticate,getBranches);
+router.put('/updatebranch/:id',authenticate,updateBranch);
 
 
-router.put('/Company/:companyId/branch/:branchId',updateBranch);
-router.delete('/Company/:companyId/branch/:branchId', deleteBranch);
+router.delete('deletebranch/:id',authenticate, deleteBranch);
 
 module.exports = router;
 
