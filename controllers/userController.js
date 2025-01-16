@@ -1,6 +1,6 @@
 const Branch = require('../models/Branch');
 const Company = require('../models/Company');
-const Superadmin = require('../models/SuperAdmin');
+const superadmin = require('../models/Superadmin');
 const Supervisor = require('../models/Supervisor');
 const Salesman = require('../models/Salesman');
 const User = require('../models/User');
