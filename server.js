@@ -30,12 +30,12 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 // Routes
-app.use("/api/users", userRoutes);
-app.use('/api/company', companyRoutes); 
-app.use('/api/branch', branchRoutes);
-app.use('/api/supervisor', supervisorRoutes);  
-app.use('/api/salesman', salesmanRoutes);
-app.use('/api/task', taskRoutesNew);
+app.use("/api", userRoutes);
+app.use('/api', companyRoutes); 
+app.use('/api', branchRoutes);
+app.use('/api', supervisorRoutes);  
+app.use('/api', salesmanRoutes);
+app.use('/api', taskRoutesNew);
 
 // app.use('/api/attendance', attendanceRoutes);
 

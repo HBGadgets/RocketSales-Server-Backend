@@ -4,7 +4,8 @@ const Supervisor = require('../models/Supervisor');
 const Salesman = require('../models/Salesman');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const Superadmin = require('../models/Superadmin');
+const Superadmin = require('../models/spradmin')
+
 
 // Register user
 

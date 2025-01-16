@@ -3,7 +3,7 @@ const Branch = require('../models/Branch');
 const Company = require('../models/Company');
 const Supervisor = require('../models/Supervisor');
 const Salesman = require('../models/Salesman');
-const Superadmin = require('../models/Superadmin');
+const Superadmin = require('../models/spradmin')
 
 
 const authenticate = async(req, res, next) => {

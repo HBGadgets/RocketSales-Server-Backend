@@ -52,21 +52,22 @@ exports.getSalesmen = async (req, res) => {
   const { id } = req.user;
   const { role } = req.user;
   const ObjectId = mongoose.Types.ObjectId;
-  let Salesman;
+  let salesmandata;
   try {
     if (role == "superadmin") {
-      Salesman = await Salesman.find();
+      salesmandata = await Salesman.find().populate("companyId","companyName").populate("branchId","branchName").populate("supervisorId","supervisorName");
+      console.log(salesmandata);
     } else if (role == "company") {
-      Salesman = await Salesman.find({ companyId: new ObjectId(id) });
+      salesmandata = await Salesman.find({ companyId: new ObjectId(id) });
     }else if (role == "branch"){
-      Salesman = await Salesman.find({ branchId: new ObjectId(id) });
+      salesmandata = await Salesman.find({ branchId: new ObjectId(id) });
     }else if(role == "supervisor"){
 
     }
-    if (!Salesman) {
+    if (!salesmandata) {
       return res.status(404).json({ message: "Salesman not found" });
     }
-    res.status(200).json({ Salesman});
+    res.status(200).json({ salesmandata});
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
