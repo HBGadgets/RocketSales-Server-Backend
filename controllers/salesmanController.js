@@ -46,7 +46,6 @@ exports.addSalesman = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 // Get All Salesmen
 exports.getSalesmen = async (req, res) => {
   const { id } = req.user;
@@ -55,19 +54,30 @@ exports.getSalesmen = async (req, res) => {
   let salesmandata;
   try {
     if (role == "superadmin") {
-      salesmandata = await Salesman.find().populate("companyId","companyName").populate("branchId","branchName").populate("supervisorId","supervisorName");
-      console.log(salesmandata);
+      salesmandata = await Salesman.find()
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName");
     } else if (role == "company") {
-      salesmandata = await Salesman.find({ companyId: new ObjectId(id) });
-    }else if (role == "branch"){
-      salesmandata = await Salesman.find({ branchId: new ObjectId(id) });
-    }else if(role == "supervisor"){
-
+      salesmandata = await Salesman.find({ companyId: new ObjectId(id) })
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName");
+    } else if (role == "branch") {
+      salesmandata = await Salesman.find({ branchId: new ObjectId(id) })
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName");
+    } else if (role == "supervisor") {
+      salesmandata = await Salesman.find({ supervisorId: new ObjectId(id) })
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName");
     }
     if (!salesmandata) {
       return res.status(404).json({ message: "Salesman not found" });
     }
-    res.status(200).json({ salesmandata});
+    res.status(200).json({ salesmandata });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -75,65 +85,42 @@ exports.getSalesmen = async (req, res) => {
 
 // Update Salesman
 exports.updateSalesman = async (req, res) => {
-  const { companyId, branchId, supervisorId, salesmanId } = req.params;
-  const {
-    salesmanName,
-    salesmanEmail,
-    salesmanPhone,
-    salesmanUsername,
-    salesmanPassword,
-  } = req.body;
+  const { id } = req.params;
+  // const {
+  //   companyId,
+  //   branchId,
+  //   supervisorId,
+  //   salesmanId,
+  //   salesmanName,
+  //   salesmanEmail,
+  //   salesmanPhone,
+  //   salesmanUsername,
+  //   salesmanPassword,
+  // } = req.body;
+  const updates = req.body;
 
   try {
-    const company = await Company.findById(companyId);
-    if (!company) {
-      return res.status(404).json({ message: "Company not found" });
-    }
-
-    const branch = company.branches.id(branchId);
-    if (!branch) {
-      return res.status(404).json({ message: "Branch not found" });
-    }
-
-    const supervisor = branch.supervisors.id(supervisorId);
-    if (!supervisor) {
-      return res.status(404).json({ message: "Supervisor not found" });
-    }
-
-    const salesman = supervisor.salesmen.id(salesmanId);
-    if (!salesman) {
-      return res.status(404).json({ message: "Salesman not found" });
-    }
-    // Check if the new username already exists in User collection
-    if (salesmanUsername !== salesman.salesmanUsername) {
-      const existingUserByUsername = await User.findOne({
-        username: salesmanUsername,
-      });
-      if (existingUserByUsername) {
+    if (updates.username) {
+      const existingUserByUsername = await findSameUsername(updates.username);
+      if (existingUserByUsername.exists) {
         return res.status(400).json({ message: "Username already exists" });
-      }
+      }  
     }
-    // const salesmanEmail = `${salesmanUsername}@salesman.com`;
-    const oldUsername = salesman.salesmanUsername;
-
-    salesman.salesmanName = salesmanName || salesman.salesmanName;
-    salesman.salesmanEmail = salesmanEmail || salesman.salesmanEmail;
-    salesman.salesmanPhone = salesmanPhone || salesman.salesmanPhone;
-    salesman.salesmanUsername = salesmanUsername || salesman.salesmanUsername;
-    salesman.salesmanPassword = salesmanPassword || salesman.salesmanPassword;
-
-    await company.save();
-    const user = await User.findOne({ username: oldUsername });
-    if (user) {
-      user.username = salesmanUsername;
-      user.password = salesmanPassword;
-      user.email = salesmanEmail;
-      await user.save();
+    
+    
+    const updatedSalesman = await Salesman.findByIdAndUpdate(
+      id,
+      updates,
+      { new: true, runValidators: true }
+    );
+    if (!updatedSalesman) {
+      return res.status(404).json({ message: "Branch not found for update" });
     }
+    
 
     res
       .status(200)
-      .json({ message: "Salesman updated successfully", salesman });
+      .json({ message: "Salesman updated successfully", updatedSalesman });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -141,39 +128,13 @@ exports.updateSalesman = async (req, res) => {
 
 // Delete Salesman
 exports.deleteSalesman = async (req, res) => {
-  const { companyId, branchId, supervisorId, salesmanId } = req.params;
+  const { id } = req.params;
 
   try {
-    // Find the company by ID
-    const company = await Company.findById(companyId);
-    if (!company) {
-      return res.status(404).json({ message: "Company not found" });
-    }
-
-    // Find the branch by ID
-    const branch = company.branches.id(branchId);
-    if (!branch) {
-      return res.status(404).json({ message: "Branch not found" });
-    }
-
-    // Find the supervisor by ID
-    const supervisor = branch.supervisors.id(supervisorId);
-    if (!supervisor) {
-      return res.status(404).json({ message: "Supervisor not found" });
-    }
-    const salesman = supervisor.salesmen.id(salesmanId);
+    const salesman = await Salesman.findByIdAndDelete(id);
     if (!salesman) {
-      return res.status(404).json({ message: "Salesman not found" });
+      return res.status(404).json({ message: "Salesman not found for delete" });
     }
-    await User.deleteOne({ username: salesman.salesmanUsername });
-    // Remove the salesman from the salesmen array
-    supervisor.salesmen = supervisor.salesmen.filter(
-      (salesman) => salesman._id.toString() !== salesmanId
-    );
-
-    // Save the updated company document
-    await company.save();
-
     res.status(200).json({ message: "Salesman deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
