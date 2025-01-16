@@ -1,10 +1,10 @@
 const Branch = require('../models/Branch');
 const Company = require('../models/Company');
-const superadmin = require('../models/Superadmin');
 const Supervisor = require('../models/Supervisor');
 const Salesman = require('../models/Salesman');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const Superadmin = require('../models/Superadmin');
 
 // Register user
 

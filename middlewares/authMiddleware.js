@@ -5,6 +5,7 @@ const Supervisor = require('../models/Supervisor');
 const Salesman = require('../models/Salesman');
 const Superadmin = require('../models/Superadmin');
 
+
 const authenticate = async(req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', ''); // Extract token from headers
 
