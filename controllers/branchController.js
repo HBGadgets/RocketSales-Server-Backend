@@ -4,6 +4,7 @@ const findSameUsername = require("../utils/findSameUsername");
 const Supervisor = require("../models/Supervisor");
 const User = require("../models/User");
 const mongoose = require('mongoose');
+const Salesman = require("../models/Salesman");
 
 
 
@@ -66,9 +67,9 @@ exports.getBranches = async (req, res) => {
   try {
 
       if(role=='superadmin'){
-         Branches = await Branch.find();
+         Branches = await Branch.find().populate("companyId","companyName");
       }else if(role =='company'){
-         Branches = await Branch.find({companyId: new ObjectId(id)});
+         Branches = await Branch.find({companyId: new ObjectId(id)}).populate("companyId","companyName");
       }
 
     if (!Branches) {
@@ -95,12 +96,15 @@ exports.updateBranch = async (req, res) => {
     if (!updatedBranch) {
       return res.status(404).json({ message: "Branch not found for update" });
     }
-      console.log(updates,"this the update")
+
+      const companyIdObjectId = new mongoose.Types.ObjectId(updates.companyId);
+      const BranchIdObjectId = new mongoose.Types.ObjectId(id);
 
     if(updates.companyId){
 
-        await Supervisor.updateMany({companyId:updates.companyId}, { $set: { companyId: updates.companyId } } )
-        await salesman.updateMany({companyId:updates.companyId}, { $set: { companyId: updates.companyId } } )
+        await Supervisor.updateMany({branchId:BranchIdObjectId}, { $set: { companyId:companyIdObjectId} } )
+        await Salesman.updateMany({branchId:BranchIdObjectId}, { $set: { companyId: companyIdObjectId} } )
+        
     }
 
     res.status(200).json({
@@ -120,36 +124,18 @@ exports.updateBranch = async (req, res) => {
 exports.deleteBranch = async (req, res) => {
   const { id } = req.params;
 
+  const ObjectId = mongoose.Types.ObjectId;
+
   try {
-    const company = await Company.findById(companyId);
-    if (!company) {
-      return res.status(404).json({ message: "Company not found" });
+
+    const deletedBranch = await Branch.findByIdAndDelete(id);
+    if (!deletedBranch) {
+      return res.status(404).json({ message: "Branch not found for delete" });
     }
 
-    // Find the branch by ID
-    const branch = company.branches.id(branchId);
-    if (!branch) {
-      return res.status(404).json({ message: "Branch not found" });
-    }
-     // Delete all associated supervisors and salesmen from User collection
-     for (const supervisor of branch.supervisors) {
-      for (const salesman of supervisor.salesmen) {
-        await User.deleteOne({ username: salesman.salesmanUsername });
-      }
-      await User.deleteOne({ username: supervisor.supervisorUsername });
-    }
+    await Supervisor.deleteMany({branchId: new ObjectId(id)});
+    await Salesman.deleteMany({branchId: new ObjectId(id)});
 
-    // Delete the branch user
-    await User.deleteOne({ username: branch.branchUsername });
-
-    // Clear supervisors to avoid potential duplicate key issues
-    branch.supervisors = [];
-
-    // Use pull to remove the branch from the company's branches array
-    company.branches.pull(branchId);
-
-    // Save the updated company
-    await company.save();
 
     res.status(200).json({ message: "Branch deleted successfully" });
   } catch (err) {

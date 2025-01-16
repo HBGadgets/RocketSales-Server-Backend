@@ -9,7 +9,7 @@ router.get('/getbranches',authenticate,getBranches);
 router.put('/updatebranch/:id',authenticate,updateBranch);
 
 
-router.delete('deletebranch/:id',authenticate, deleteBranch);
+router.delete('/deletebranch/:id',authenticate, deleteBranch);
 
 module.exports = router;
 
