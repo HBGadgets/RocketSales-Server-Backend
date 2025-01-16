@@ -1,5 +1,6 @@
 const Branch = require("../models/Branch");
 const Company = require("../models/Company"); 
+const findSameUsername = require("../utils/findSameUsername");
 const Supervisor = require("../models/Supervisor");
 const User = require("../models/User");
 const mongoose = require('mongoose');
@@ -16,20 +17,21 @@ exports.addBranch = async (req, res) => {
     branchLocation,
     branchEmail,
     branchPhone,
+    supervisorsIds,
     username,
     password,
-    supervisors
   } = req.body;
 
   try {
     const findCompany = await Company.findById(companyId);
-    const findBranch = await Branch.findOne({username})
+    // const findBranch = await Branch.findOne({username})
 
     if (!findCompany) {
       return res.status(404).json({ message: "Company not found" });
     }
-    if (findBranch) {
-      return res.status(404).json({ message: "Branch with this username already exist" });
+    const existingUserByUsername = await findSameUsername(username);
+    if (existingUserByUsername.exists) {
+      return res.status(400).json({ message: "Username already exists" });
     }
 
     const newBranch =  new Branch ({
@@ -38,9 +40,9 @@ exports.addBranch = async (req, res) => {
       branchLocation,
       branchEmail,
       branchPhone,
+      supervisorsIds,
       username,
       password,
-      supervisors,
       role: 3,
     })
    

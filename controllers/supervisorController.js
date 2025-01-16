@@ -1,21 +1,26 @@
 const Company = require('../models/Company');
 const User = require("../models/User");
 const mongoose = require('mongoose');
+const findSameUsername = require("../utils/findSameUsername");
+const Supervisor = require('../models/Supervisor');
+const Branch = require('../models/Branch');
+
 
 
 // Add a Supervisor
 exports.addSupervisor = async (req, res) => {
-    const { companyId, branchId } = req.params;
     const {
+      companyId,
+      branchId,
       supervisorName,
       supervisorEmail,
       supervisorPhone,
-      supervisorUsername,
-      supervisorPassword,
+      username,
+      password,
     } = req.body;
   
     // Ensure supervisorUsername is provided
-    if (!supervisorUsername) {
+    if (!username) {
       return res.status(400).json({ message: 'Supervisor username is required' });
     }
   
@@ -25,23 +30,16 @@ exports.addSupervisor = async (req, res) => {
         return res.status(404).json({ message: 'Company not found' });
       }
   
-      const branch = company.branches.id(branchId);
+      const branch = await Branch.findById(branchId);
       if (!branch) {
         return res.status(404).json({ message: 'Branch not found' });
       }
   
       // Check if supervisor username already exists in the branch
-      const existingSupervisor = branch.supervisors.find(
-        (sup) => sup.supervisorUsername === supervisorUsername
-      );
-      if (existingSupervisor) {
-        return res.status(400).json({ message: 'Supervisor username already exists' });
-      }
-      // Check if the username already exists in the User collection
-      const existingUserByUsername = await User.findOne({ username: supervisorUsername });
-      if (existingUserByUsername) {
-        return res.status(400).json({ message: 'Username already exists' });
-      }
+      const existingUserByUsername = await findSameUsername(username);
+    if (existingUserByUsername.exists) {
+      return res.status(400).json({ message: "Username already exists" });
+    }
       // Check if the email already exists in the User collection (assuming email is generated)
       // const supervisorEmail = `${supervisorUsername}@supervisor.com`;
       // const existingUserByEmail = await User.findOne({ email: supervisorEmail });
@@ -50,31 +48,19 @@ exports.addSupervisor = async (req, res) => {
       // }
       const supervisorId = new mongoose.Types.ObjectId();
       
-      const newSupervisor = {
+      const newSupervisor = new Supervisor ({
         _id: supervisorId,
         supervisorName,
         supervisorEmail,
         supervisorPhone,
-        supervisorUsername,
-        supervisorPassword,
-        salesmen: [],
-      };
-  
-      // Push the new supervisor to the branch's supervisors array
-      branch.supervisors.push(newSupervisor);
-      await company.save();
-       // Add supervisor to User collection
-    const newUser = new User({
-      username: supervisorUsername,
-      password: supervisorPassword,
-      email: supervisorEmail,
-      role: 4,
-      companyId:companyId,
-      branchId: branchId,
-      supervisorId: supervisorId,
-
-    });
-    await newUser.save();
+        username,
+        password,
+        companyId,
+        branchId,
+         role: 4,
+      });
+ 
+      await newSupervisor.save();
   
       res.status(201).json({ message: 'Supervisor added successfully', supervisor: newSupervisor });
     } catch (err) {
