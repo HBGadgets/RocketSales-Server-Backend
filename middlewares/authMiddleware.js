@@ -22,29 +22,38 @@ const authenticate = async(req, res, next) => {
     let sperr = false;
     user = await Superadmin.findById(decoded.id);
     if (user) {
-      req.user = { id: decoded.id, role: 'superadmin'}; 
+      req.user = { id: decoded.id, role: 'superadmin' };
       sperr = true;
-    } else if(!user) {
+  } else {
       user = await Company.findById(decoded.id);
-      req.user = { id:decoded, role: 'company'}; 
-      sperr = true;
-
-    }
-     else if(!user) {
-      user = await Branch.findById(decoded.id);
-      req.user = { id: user._id,role: 'branch'}; 
-      sperr = true;
-    
-    } else if(!user) {
-      user = await Supervisor.findById(decoded.id);
-      req.user = { id: user._id, role: 'supervisor'}; 
-      sperr = true;
-    
-    } else{
-      user = await Salesman.findById(decoded.id);
-      req.user = { id: user._id, role: 'salesman'}; 
-      sperr = true;
-    }
+      if (user) {
+          req.user = { id: user._id, role: 'company' };
+          sperr = true;
+      } else {
+          user = await Branch.findById(decoded.id);
+          if (user) {
+              req.user = { id: user._id, role: 'branch' };
+              sperr = true;
+          } else {
+              user = await Supervisor.findById(decoded.id);
+              if (user) {
+                  req.user = { id: user._id, role: 'supervisor' };
+                  sperr = true;
+              } else {
+                  user = await Salesman.findById(decoded.id);
+                  if (user) {
+                      req.user = { id: user._id, role: 'salesman' };
+                      sperr = true;
+                  } else {
+                      // Handle case where no matching user is found
+                      req.user = null;
+                      sperr = false;
+                  }
+              }
+          }
+      }
+  }
+  
       
     if(!sperr){
       return res.status(404).json({ message: 'User not found' });

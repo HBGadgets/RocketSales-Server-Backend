@@ -1,14 +1,14 @@
 const express = require('express');
-const supervisorController = require('../controllers/supervisorController');
+const {addSupervisor, getSupervisors, updateSupervisor, deleteSupervisor} = require('../controllers/supervisorController');
 const router = express.Router();
 const authenticate = require('../middlewares/authMiddleware');
 
 
 // Supervisor CRUD
-router.post('/supervisor',authenticate, supervisorController.addSupervisor);
+router.post('/supervisor',authenticate, addSupervisor);
 
-router.get('/Company/:companyId/branch/:branchId/supervisors', supervisorController.getSupervisors);
-router.put('/Company/:companyId/branch/:branchId/supervisor/:supervisorId', supervisorController.updateSupervisor);
-router.delete('/Company/:companyId/branch/:branchId/supervisor/:supervisorId', supervisorController.deleteSupervisor);
+router.get('/supervisor',authenticate, getSupervisors);
+router.put('/supervisor/:id',authenticate, updateSupervisor);
+router.delete('/supervisor/:id',authenticate, deleteSupervisor);
 
 module.exports = router;

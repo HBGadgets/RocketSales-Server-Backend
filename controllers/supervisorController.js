@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const findSameUsername = require("../utils/findSameUsername");
 const Supervisor = require('../models/Supervisor');
 const Branch = require('../models/Branch');
+const Salesman = require('../models/Salesman');
 
 
 
@@ -70,77 +71,71 @@ exports.addSupervisor = async (req, res) => {
   
 // Get All Supervisors
 exports.getSupervisors = async (req, res) => {
-  const { companyId, branchId } = req.params;
+  // const { companyId, branchId } = req.params;
+    const {role} = req.user
+    const {id} = req.user
+      let supervisors;
+      const ObjectId = mongoose.Types.ObjectId;
 
-  try {
-    const company = await Company.findById(companyId);
-    if (!company) {
-      return res.status(404).json({ message: 'Company not found' });
-    }
+ try {
+ 
+       if(role=='superadmin'){
+        supervisors = await Supervisor.find().populate("companyId","companyName").populate("branchId","branchName");
+       }else if(role =='company'){
+        supervisors = await Supervisor.find({companyId: new ObjectId(id)}).populate("companyId","companyName").populate("branchId","branchName");
+       }else if(role =='branch'){
+        supervisors = await Supervisor.find({branchId: new ObjectId(id)}).populate("branchId","branchName").populate("companyId","companyName");
 
-    const branch = company.branches.id(branchId);
-    if (!branch) {
-      return res.status(404).json({ message: 'Branch not found' });
-    }
-
-    res.status(200).json({ supervisors: branch.supervisors });
-  } catch (err) {
+       }
+ 
+     if (!supervisors) {
+       return res.status(404).json({ message: "supervisors not found" });
+     }
+ 
+     res.status(200).json({ supervisors});
+   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
 // Update Supervisor
 exports.updateSupervisor = async (req, res) => {
-  const { companyId, branchId, supervisorId } = req.params;
-  const {
-    supervisorName,
-    supervisorEmail,
-    supervisorPhone,
-    supervisorUsername,
-    supervisorPassword,
-  } = req.body;
 
+  const {id} = req.params;
+  const updates = req.body;
+
+  const objectId = mongoose.Types.objectId
+ 
   try {
-    const company = await Company.findById(companyId);
-    if (!company) {
-      return res.status(404).json({ message: 'Company not found' });
-    }
 
-    const branch = company.branches.id(branchId);
-    if (!branch) {
-      return res.status(404).json({ message: 'Branch not found' });
-    }
-
-    const supervisor = branch.supervisors.id(supervisorId);
-    if (!supervisor) {
-      return res.status(404).json({ message: 'Supervisor not found' });
-    }
-      // Check if the new username already exists in User collection
-      if (supervisorUsername !== supervisor.supervisorUsername) {
-        const existingUserByUsername = await User.findOne({ username: supervisorUsername });
-        if (existingUserByUsername) {
-          return res.status(400).json({ message: 'Username already exists' });
-        }
+    if(updates.username){
+      const alreadyExistUser = await findSameUsername(updates.username);
+      if(alreadyExistUser.exists){
+        return res.status(404).json({ message: "Username already exist" });
       }
-      const supervisorEmail = `${supervisorUsername}@supervisor.com`;
-      const oldUsername = supervisor.supervisorUsername;
-  
-    supervisor.supervisorName = supervisorName || supervisor.supervisorName;
-    supervisor.supervisorEmail = supervisorEmail || supervisor.supervisorEmail;
-    supervisor.supervisorPhone = supervisorPhone || supervisor.supervisorPhone;
-    supervisor.supervisorUsername = supervisorUsername || supervisor.supervisorUsername;
-    supervisor.supervisorPassword = supervisorPassword || supervisor.supervisorPassword;
+    }
+      const updatedSupervisor = await Supervisor.findByIdAndUpdate(id,updates,{ new: true,
+        runValidators: true,
+      })
+      if(!updatedSupervisor){
+        res.status(404).json({ message: 'Supervisor not found for update'});
+      }
 
-    await company.save();
-     // Update User collection
-     const user = await User.findOne({ username: oldUsername });
-     if (user) {
-       user.username = supervisorUsername;
-       user.password = supervisorPassword;
-      //  user.email = supervisorEmail;
-       await user.save();
-     }  
-    res.status(200).json({ message: 'Supervisor updated successfully', supervisor });
+      if(updates.branchId){
+        await Salesman.updateMany(
+          { supervisorId: id },
+          { $unset: { supervisorId: "" } }
+      );      
+    }
+
+      if(updates.companyId){
+        await Salesman.updateMany(
+          { supervisorId:id  },
+          { $unset: { supervisorId: "" } }
+      );            
+    }
+   
+    res.status(200).json({ message: 'Supervisor updated successfully', updatedSupervisor });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -148,37 +143,21 @@ exports.updateSupervisor = async (req, res) => {
 
 // Delete Supervisor
 exports.deleteSupervisor = async (req, res) => {
-  const { companyId, branchId, supervisorId } = req.params;
+  const { id } = req.params;
 
   try {
-    const company = await Company.findById(companyId);
-    if (!company) {
-      return res.status(404).json({ message: 'Company not found' });
-    }
-
-    const branch = company.branches.id(branchId);
-    if (!branch) {
-      return res.status(404).json({ message: 'Branch not found' });
-    }
-    const supervisor = branch.supervisors.id(supervisorId);
-    if (!supervisor) {
-      return res.status(404).json({ message: 'Supervisor not found' });
-    }
-
-    // Delete all associated salesmen from User collection
-    for (const salesman of supervisor.salesmen) {
-      await User.deleteOne({ username: salesman.salesmanUsername });
-    }
-      // Delete the supervisor user
-      await User.deleteOne({ username: supervisor.supervisorUsername });
-    // Remove supervisor from the supervisors array
-    branch.supervisors = branch.supervisors.filter(
-      (supervisor) => supervisor._id.toString() !== supervisorId
-    );
-
-    // Save the updated company
-    await company.save();
-
+   
+        const deletedSupervisor = await Supervisor.findByIdAndDelete(id);
+          if (!deletedSupervisor) {
+            return res.status(404).json({ message: "Supervisor not found for delete" });
+          }
+          if(deletedSupervisor){
+            await Salesman.updateMany(
+              { supervisorId: id },
+              { $unset: { supervisorId: "" } }
+          );      
+        }
+    
     res.status(200).json({ message: 'Supervisor deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });

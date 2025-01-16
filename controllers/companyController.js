@@ -79,8 +79,15 @@ exports.updateCompany = async (req, res) => {
   const  updates= req.body;
 
   try {
+
+    if(updates.username){
+      const alreadyExistUser = await findSameUsername(updates.username);
+      if(alreadyExistUser.exists){
+        return res.status(404).json({ message: "Username already exist" });
+      }
+    }
  
-    const company = await Company.findOneAndUpdate({_id:id},updates,
+    const company = await Company.findByIdAndUpdate(id,updates,
       { new: true,
       runValidators: true,
     });
@@ -103,7 +110,7 @@ exports.deleteCompany = async (req, res) => {
 
   try {
  
-    const company = await Company.findOneAndDelete(id);
+    const company = await Company.findByIdAndDelete(id);
     
     if (!company) {
       return res.status(404).json({ message: 'Company not found for delete' });

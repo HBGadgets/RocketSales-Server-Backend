@@ -90,7 +90,14 @@ exports.updateBranch = async (req, res) => {
     const updates = req.body;
 
   try {
-    const updatedBranch = await Branch.findOneAndUpdate({_id:id},updates,{ new: true,
+      if(updates.username){
+        const alreadyExistUser = await findSameUsername(updates.username);
+        if(alreadyExistUser.exists){
+          return res.status(404).json({ message: "Username already exist" });
+        }
+      }
+
+    const updatedBranch = await Branch.findByIdAndUpdate(id,updates,{ new: true,
                                                                   runValidators: true,
                                                                 });
     if (!updatedBranch) {
@@ -116,8 +123,6 @@ exports.updateBranch = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
-
 
 
 // Delete a Branch
