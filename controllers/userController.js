@@ -39,28 +39,26 @@ const loginUser = async (req, res) => {
 
   try {
     
-    user = await Superadmin.findOne({username});
+    user = await Superadmin.findOne({ username });
     if (!user) {
-     
-      user = await Company.findOne({username});
-
-    } else if(!user){
-
-      user = await Branch.findOne({username});
-
-    }  else if(!user){
-
-      user = await Supervisor.findOne({username});
-
-    } else if(!user){
-
-      user = await Salesman.findOne({username});
-
-    }else if (!user){
+      user = await Company.findOne({ username });
+    }
+    if (!user) {
+      user = await Branch.findOne({ username });
+    }
+    if (!user) {
+      user = await Supervisor.findOne({ username });
+    }
+    if (!user) {
+      user = await Salesman.findOne({ username });
+    }
+    
+    if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    if(user.password !== password){
+
+    if(user.password != password){
 
       return res.status(400).json({ message: 'Incorrect Pasword or email Id' });
 

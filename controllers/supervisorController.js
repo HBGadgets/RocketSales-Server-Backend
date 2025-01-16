@@ -3,6 +3,7 @@ const User = require("../models/User");
 const mongoose = require('mongoose');
 const findSameUsername = require("../utils/findSameUsername");
 const Supervisor = require('../models/Supervisor');
+const Branch = require('../models/Branch');
 
 
 
@@ -19,7 +20,7 @@ exports.addSupervisor = async (req, res) => {
     } = req.body;
   
     // Ensure supervisorUsername is provided
-    if (!supervisorUsername) {
+    if (!username) {
       return res.status(400).json({ message: 'Supervisor username is required' });
     }
   
@@ -29,7 +30,7 @@ exports.addSupervisor = async (req, res) => {
         return res.status(404).json({ message: 'Company not found' });
       }
   
-      const branch = company.branches.id(branchId);
+      const branch = await Branch.findById(branchId);
       if (!branch) {
         return res.status(404).json({ message: 'Branch not found' });
       }
@@ -47,7 +48,7 @@ exports.addSupervisor = async (req, res) => {
       // }
       const supervisorId = new mongoose.Types.ObjectId();
       
-      const newSupervisor = {
+      const newSupervisor = new Supervisor ({
         _id: supervisorId,
         supervisorName,
         supervisorEmail,
@@ -55,11 +56,11 @@ exports.addSupervisor = async (req, res) => {
         username,
         password,
         companyId,
-         branchId,
+        branchId,
          role: 4,
-      };
+      });
  
-      await Supervisor.save();
+      await newSupervisor.save();
   
       res.status(201).json({ message: 'Supervisor added successfully', supervisor: newSupervisor });
     } catch (err) {

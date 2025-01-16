@@ -2,10 +2,10 @@ const Company = require("../models/Company");
 const Salesman = require("../models/Salesman");
 const User = require("../models/User");
 const mongoose = require("mongoose");
+const findSameUsername = require("../utils/findSameUsername");
 
 // Add a Salesman
 exports.addSalesman = async (req, res) => {
-  // const { companyId, branchId, supervisorId } = req.params;
   const {
     salesmanName,
     salesmanEmail,
@@ -18,20 +18,20 @@ exports.addSalesman = async (req, res) => {
   } = req.body;
 
   try {
-    const company = await Company.findById(companyId);
-    if (!company) {
-      return res.status(404).json({ message: "Company not found" });
-    }
+    // const company = await Company.findById(companyId);
+    // if (!company) {
+    //   return res.status(404).json({ message: "Company not found" });
+    // }
 
-    const branch = company.branches.id(branchId);
-    if (!branch) {
-      return res.status(404).json({ message: "Branch not found" });
-    }
+    // const branch = company.branches.id(branchId);
+    // if (!branch) {
+    //   return res.status(404).json({ message: "Branch not found" });
+    // }
 
-    const supervisor = branch.supervisors.id(supervisorId);
-    if (!supervisor) {
-      return res.status(404).json({ message: "Supervisor not found" });
-    }
+    // const supervisor = branch.supervisors.id(supervisorId);
+    // if (!supervisor) {
+    //   return res.status(404).json({ message: "Supervisor not found" });
+    // }
 
     const existingUserByUsername = await findSameUsername(username);
     if (existingUserByUsername.exists) {
@@ -39,7 +39,7 @@ exports.addSalesman = async (req, res) => {
     }
 
     const salesmanId = new mongoose.Types.ObjectId();
-    const newSalesman = {
+    const newSalesman = new Salesman({
       _id: salesmanId,
       salesmanName,
       salesmanEmail,
@@ -47,13 +47,13 @@ exports.addSalesman = async (req, res) => {
       username,
       password,
       companyId,
-    branchId,
-    supervisorId,
-    role: 5,
+      branchId,
+      supervisorId,
+      role: 5,
 
-    };
+    });
 
-    await Salesman.save();
+    await newSalesman.save();
 
     res
       .status(201)
