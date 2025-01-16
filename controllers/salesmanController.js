@@ -18,21 +18,6 @@ exports.addSalesman = async (req, res) => {
   } = req.body;
 
   try {
-    // const company = await Company.findById(companyId);
-    // if (!company) {
-    //   return res.status(404).json({ message: "Company not found" });
-    // }
-
-    // const branch = company.branches.id(branchId);
-    // if (!branch) {
-    //   return res.status(404).json({ message: "Branch not found" });
-    // }
-
-    // const supervisor = branch.supervisors.id(supervisorId);
-    // if (!supervisor) {
-    //   return res.status(404).json({ message: "Supervisor not found" });
-    // }
-
     const existingUserByUsername = await findSameUsername(username);
     if (existingUserByUsername.exists) {
       return res.status(400).json({ message: "Username already exists" });
@@ -50,7 +35,6 @@ exports.addSalesman = async (req, res) => {
       branchId,
       supervisorId,
       role: 5,
-
     });
 
     await newSalesman.save();
@@ -65,25 +49,24 @@ exports.addSalesman = async (req, res) => {
 
 // Get All Salesmen
 exports.getSalesmen = async (req, res) => {
-  const { companyId, branchId, supervisorId } = req.params;
-
+  const { id } = req.user;
+  const { role } = req.user;
+  const ObjectId = mongoose.Types.ObjectId;
+  let Salesman;
   try {
-    const company = await Company.findById(companyId);
-    if (!company) {
-      return res.status(404).json({ message: "Company not found" });
-    }
+    if (role == "superadmin") {
+      Salesman = await Salesman.find();
+    } else if (role == "company") {
+      Salesman = await Salesman.find({ companyId: new ObjectId(id) });
+    }else if (role == "branch"){
+      Salesman = await Salesman.find({ branchId: new ObjectId(id) });
+    }else if(role == "supervisor"){
 
-    const branch = company.branches.id(branchId);
-    if (!branch) {
-      return res.status(404).json({ message: "Branch not found" });
     }
-
-    const supervisor = branch.supervisors.id(supervisorId);
-    if (!supervisor) {
-      return res.status(404).json({ message: "Supervisor not found" });
+    if (!Salesman) {
+      return res.status(404).json({ message: "Salesman not found" });
     }
-
-    res.status(200).json(supervisor.salesmen);
+    res.status(200).json({ Salesman});
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
