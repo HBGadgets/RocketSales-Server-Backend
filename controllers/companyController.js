@@ -5,6 +5,7 @@ const Company = require("../models/Company");
 const findSameUsername = require("../utils/findSameUsername");
 const User = require("../models/User");
 const Supervisor = require("../models/Supervisor");
+const Salesman = require("../models/Salesman");
 
             // Create a new company
 exports.createCompany = async (req, res) => {
