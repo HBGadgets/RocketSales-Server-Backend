@@ -17,13 +17,13 @@ router.delete('/task/:id',authenticate, deleteTask);
 
 
 
+               // task status api
+router.put('/task/status/:id', updateTaskStatus);  
+
 
 
 
 // router.get('/tasks/supervisor/:supervisorUsername', getTasksBySupervisor);
-
-          // task status api
-router.put('/task/status/:id', updateTaskStatus);  
 
 
 
