@@ -1,27 +1,32 @@
 const express = require('express');
 const router = express.Router();
 
-const  {addTasks, getTasksBySalesman, getTasksBySupervisor, updateTask, deleteTask, updateTaskStatus}  = require('../controllers/taskControllerNew');
+const  {addTasks, updateTask, deleteTask, updateTaskStatus, getTasks}  = require('../controllers/taskControllerNew');
+const authenticate = require('../middlewares/authMiddleware');
 
 
 
 
-router.post('/:companyId/:branchId/:supervisorId/task', addTasks);
+router.post('/task',authenticate, addTasks);
 
-router.get('/tasks/salesman/:salesmanUsername', getTasksBySalesman);
+router.get('/task',authenticate, getTasks);
 
-router.get('/tasks/supervisor/:supervisorUsername', getTasksBySupervisor);
+router.put('/task/:id',authenticate,updateTask);
+
+router.delete('/task/:id',authenticate, deleteTask);
 
 
 
-router.put('/task/group/:id',updateTask);
+
+
+
+// router.get('/tasks/supervisor/:supervisorUsername', getTasksBySupervisor);
 
           // task status api
 router.put('/task/status/:id', updateTaskStatus);  
 
 
 
-router.delete('/task/group/:id', deleteTask);
 
 
 

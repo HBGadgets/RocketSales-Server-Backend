@@ -7,8 +7,7 @@ const Company = require('../models/Company');
 
 exports.addTasks = async (req, res) => {
 
-     const { companyId, branchId, supervisorId } = req.params;
-     const { taskDescription, deadline, assignedTo, latitude ,longitude } = req.body; 
+     const { taskDescription, deadline, assignedTo, latitude ,longitude,companyId, branchId, supervisorId } = req.body; 
    
      try {
        const company = await Company.findById(companyId);
@@ -16,25 +15,17 @@ exports.addTasks = async (req, res) => {
          return res.status(404).json({ message: 'Company not found' });
        }
    
-       const branch = company.branches.id(branchId);
-       if (!branch) {
-         return res.status(404).json({ message: 'Branch not found' });
-       }
-   
-       const supervisor = branch.supervisors.id(supervisorId);
-       if (!supervisor) {
-         return res.status(404).json({ message: 'Supervisor not found' });
-       }
-   
 
         const task = new Task({
           taskDescription,
           status: 'Pending',
-          deadline,
-          latitude,
+          deadline, 
+          assignedTo, 
+          latitude ,
           longitude,
-          assignedTo,
-          assignedBy: supervisor.supervisorUsername,
+          companyId,
+          branchId,
+          supervisorId
         });
    
        const createdTasks = await task.save();
@@ -46,15 +37,50 @@ exports.addTasks = async (req, res) => {
    };
    
 
-                    //Get Tasks by Salesman
-   exports.getTasksBySalesman = async (req, res) => {
-       const { salesmanUsername } = req.params;
+                    //Get Tasks role wise superadmin/company/branch/supervisor/salesman
+
+   exports.getTasks = async (req, res) => {
+
+          const {role} = req.user;
+          const {id} = req.user;
+          let tasks;
      
        try {
-         const tasks = await Task.find({ assignedTo: salesmanUsername });
-         if (!tasks.length) {
-           return res.status(404).json({ message: 'No tasks found for this salesman' });
-         }
+         
+             if(role=='superadmin'){
+                    tasks = await Task.find()
+                    .populate("companyId","companyName")
+                    .populate("branchId","branchName")
+                    .populate("supervisorId","supervisorName")
+                    .populate("assignedTo","salesmanName");
+
+                   }else if(role =='company'){
+                    tasks = await Task.find({companyId:id})
+                    .populate("branchId","branchName")
+                    .populate("supervisorId","supervisorName")
+                    .populate("assignedTo","salesmanName");
+
+
+                   }else if(role =='branch'){
+                    tasks = await Task.find({branchId:id})
+                    .populate("supervisorId","supervisorName")
+                    .populate("assignedTo","salesmanName");
+                    ;
+            
+                   }else if(role =='supervisor'){
+                    tasks = await Task.find({supervisorId:id})
+                    .populate("companyId","companyName")
+                    .populate("branchId","branchName")                    
+                    .populate("assignedTo","salesmanName");
+
+            
+                   }else if(role =='salesman'){
+                    tasks = await Task.find({assignedTo:id})
+                    .populate("companyId","companyName")
+                    .populate("branchId","branchName")
+                    .populate("supervisorId","supervisorName");
+            
+                   }
      
          res.status(200).json(tasks);
        } catch (err) {
@@ -62,33 +88,13 @@ exports.addTasks = async (req, res) => {
        }
    };
 
-                    //  Get task by supervisor
-exports.getTasksBySupervisor = async (req, res) => {
-  const { supervisorUsername } = req.params;
-
-  try {
-    
-      const tasks = await Task.find({assignedBy:supervisorUsername})
 
 
-    if (!tasks.length) {
-      return res.status(404).json({ message: 'No tasks found for this supervisor' });
-    }
-
-    res.status(200).json(tasks);
-
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-                    // Update task
+                    // Update task role wise superadmin/company/branch/supervisor/salesman
 exports.updateTask = async (req, res) => {
   
   const { id } = req.params; 
   const updates = req.body;
-
-  console.log(id,updates)
 
   try {
     const updatedtask = await Task.findOneAndUpdate({_id:id}, updates, {
