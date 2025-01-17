@@ -2,6 +2,7 @@ const Company = require("../models/Company");
 const Branch = require("../models/Branch");
 const Supervisor = require("../models/Supervisor");
 const Salesman = require("../models/Salesman");
+const Superadmin = require("../models/spradmin");
 
 const findSameUsername = async (username) => {
   try {
@@ -12,6 +13,7 @@ const findSameUsername = async (username) => {
       Branch.findOne({ username }).lean(),
       Supervisor.findOne({ username }).lean(),
       Salesman.findOne({ username }).lean(),
+      Superadmin.findOne({ username }).lean(),
     ];
 
     const results = await Promise.all(queries);

@@ -6,7 +6,7 @@ const { addSalesman, getSalesmen, updateSalesman, deleteSalesman } = require('..
 // ---------------CRUD Api of architecture--------------------
 router.post('/salesman',authenticate, addSalesman);
 router.get('/salesman',authenticate,getSalesmen);
-router.put('/salesman/:id', updateSalesman);
+router.put('/salesman/:id',authenticate, updateSalesman);
 router.delete('/salesman/:id', deleteSalesman);
 
 module.exports = router;

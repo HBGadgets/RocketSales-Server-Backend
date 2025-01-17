@@ -90,7 +90,9 @@ exports.updateBranch = async (req, res) => {
     const updates = req.body;
 
   try {
-      if(updates.username){
+        const currentBranch = await Branch.findById(id);
+    
+      if(updates.username&& updates.username !== currentBranch.username){
         const alreadyExistUser = await findSameUsername(updates.username);
         if(alreadyExistUser.exists){
           return res.status(404).json({ message: "Username already exist" });
