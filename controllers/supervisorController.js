@@ -107,8 +107,9 @@ exports.updateSupervisor = async (req, res) => {
   const objectId = mongoose.Types.objectId
  
   try {
+      const currentSupervisor = await Supervisor.findById(id);
 
-    if(updates.username){
+    if(updates.username && updates.username !== currentSupervisor.username){
       const alreadyExistUser = await findSameUsername(updates.username);
       if(alreadyExistUser.exists){
         return res.status(404).json({ message: "Username already exist" });

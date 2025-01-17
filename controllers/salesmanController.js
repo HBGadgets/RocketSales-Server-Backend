@@ -100,7 +100,8 @@ exports.updateSalesman = async (req, res) => {
   const updates = req.body;
 
   try {
-    if (updates.username) {
+    const currentSalesman = await Salesman.findById(id);
+    if (updates.username && updates.username !== currentSalesman.username) {
       const existingUserByUsername = await findSameUsername(updates.username);
       if (existingUserByUsername.exists) {
         return res.status(400).json({ message: "Username already exists" });

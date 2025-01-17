@@ -80,8 +80,8 @@ exports.updateCompany = async (req, res) => {
   const  updates= req.body;
 
   try {
-
-    if(updates.username){
+    const currentCompany = await Company.findById(id);
+    if(updates.username && updates.username !== currentCompany.username){
       const alreadyExistUser = await findSameUsername(updates.username);
       if(alreadyExistUser.exists){
         return res.status(404).json({ message: "Username already exist" });
