@@ -5,6 +5,7 @@ const Supervisor = require("../models/Supervisor");
 const User = require("../models/User");
 const mongoose = require('mongoose');
 const Salesman = require("../models/Salesman");
+const { decrypt } = require("../utils/cryptoUtils");
 
 
 
@@ -75,6 +76,11 @@ exports.getBranches = async (req, res) => {
     if (!Branches) {
       return res.status(404).json({ message: "Branches not found" });
     }
+
+    Branches.forEach(branch => {
+      const decryptedPassword = decrypt(branch.password);
+      branch.password = decryptedPassword;
+    });
 
     res.status(200).json({ Branches});
   } catch (err) {

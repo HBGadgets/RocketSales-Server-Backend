@@ -1,5 +1,6 @@
 // //models/Company.js
 const mongoose = require('mongoose');
+const { decrypt, encrypt } = require('../utils/cryptoUtils');
 
 
 const companySchema = new mongoose.Schema({
@@ -19,5 +20,21 @@ const companySchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+
+companySchema.pre('save', async function(next) {
+  if (this.isModified('password')) {
+    this.password = encrypt(this.password);
+  }
+  next();
+});
+
+companySchema.methods.comparePassword = async function(password) {
+
+  const decryptedPassword = decrypt(this.password);
+  return password === decryptedPassword;
+};
+
+
 
 module.exports = mongoose.model('Company', companySchema);

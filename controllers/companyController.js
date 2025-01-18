@@ -6,6 +6,7 @@ const findSameUsername = require("../utils/findSameUsername");
 const User = require("../models/User");
 const Supervisor = require("../models/Supervisor");
 const Salesman = require("../models/Salesman");
+const { decrypt } = require("../utils/cryptoUtils");
 
             // Create a new company
 exports.createCompany = async (req, res) => {
@@ -66,10 +67,16 @@ exports.createCompany = async (req, res) => {
           // Get only companies without branches
 exports.getCompanies = async (req, res) => {
   try {
+
     
-    const companies = await Company.find()
+    const companies = await Company.find();
+    
+    companies?.forEach(company => {
+      const decryptedPassword = decrypt(company.password);
+      company.password = decryptedPassword;
+    });
     res.status(200).json(companies);
-  } catch (err) {
+  }catch (err) {
     res.status(500).json({ message: err.message });
   }
 };

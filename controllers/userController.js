@@ -33,6 +33,7 @@ const loginUser = async (req, res) => {
 
   const { username, password } = req.body;
   let user;
+  let isMatch = false
 
       if( username==null|| password==null){
         return res.status(400).json({ message: 'Please Enter Valid Detail' });
@@ -58,8 +59,11 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    if(user){
+      isMatch = await user.comparePassword(password);
+    }
 
-    if(user.password != password){
+    if(!isMatch){
 
       return res.status(400).json({ message: 'Incorrect Pasword or email Id' });
 
