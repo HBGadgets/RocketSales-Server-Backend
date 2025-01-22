@@ -5,6 +5,7 @@ const findSameUsername = require("../utils/findSameUsername");
 const Supervisor = require('../models/Supervisor');
 const Branch = require('../models/Branch');
 const Salesman = require('../models/Salesman');
+const { decrypt, encrypt } = require('../utils/cryptoUtils');
 
 
 
@@ -85,8 +86,13 @@ exports.getSupervisors = async (req, res) => {
         supervisors = await Supervisor.find({companyId: new ObjectId(id)}).populate("companyId","companyName").populate("branchId","branchName");
        }else if(role =='branch'){
         supervisors = await Supervisor.find({branchId: new ObjectId(id)}).populate("branchId","branchName").populate("companyId","companyName");
-
        }
+       supervisors?.forEach(supervisor=>{
+        const decryptedPassword  = decrypt(supervisor.password);
+        supervisor.password = decryptedPassword;
+
+
+       })
  
      if (!supervisors) {
        return res.status(404).json({ message: "supervisors not found" });
@@ -102,34 +108,62 @@ exports.getSupervisors = async (req, res) => {
 exports.updateSupervisor = async (req, res) => {
 
   const {id} = req.params;
-  const updates = req.body;
+  const { 
+    companyId,
+    branchId,
+    supervisorName,
+    supervisorEmail,
+    supervisorPhone,
+    username,
+    password,} = req.body;
 
   const objectId = mongoose.Types.objectId
  
   try {
       const currentSupervisor = await Supervisor.findById(id);
 
-    if(updates.username && updates.username !== currentSupervisor.username){
-      const alreadyExistUser = await findSameUsername(updates.username);
+    if(username && username !== currentSupervisor.username){
+      const alreadyExistUser = await findSameUsername(username);
       if(alreadyExistUser.exists){
         return res.status(404).json({ message: "Username already exist" });
       }
     }
-      const updatedSupervisor = await Supervisor.findByIdAndUpdate(id,updates,{ new: true,
+
+    let changedpassword;
+
+    if (password) {
+      const isPasswordChanged =
+        !currentSupervisor.password || decrypt(currentSupervisor.password) !== password;
+    
+      if (isPasswordChanged) {
+        changedpassword = encrypt(password);
+      }
+    }
+
+      const updatedSupervisor = await Supervisor.findByIdAndUpdate(id,{ 
+        companyId,
+        branchId,
+        supervisorName,
+        supervisorEmail,
+        supervisorPhone,
+        username,
+        password:changedpassword
+        },
+        { new: true,
         runValidators: true,
       })
       if(!updatedSupervisor){
         res.status(404).json({ message: 'Supervisor not found for update'});
       }
 
-      if(updates.branchId){
+      if(branchId){
         await Salesman.updateMany(
           { supervisorId: id },
           { $unset: { supervisorId: "" } }
       );      
     }
 
-      if(updates.companyId){
+      if(companyId){
         await Salesman.updateMany(
           { supervisorId:id  },
           { $unset: { supervisorId: "" } }

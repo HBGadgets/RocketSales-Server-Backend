@@ -6,7 +6,7 @@ const findSameUsername = require("../utils/findSameUsername");
 const User = require("../models/User");
 const Supervisor = require("../models/Supervisor");
 const Salesman = require("../models/Salesman");
-const { decrypt } = require("../utils/cryptoUtils");
+const { decrypt, encrypt } = require("../utils/cryptoUtils");
 
             // Create a new company
 exports.createCompany = async (req, res) => {
@@ -84,18 +84,53 @@ exports.getCompanies = async (req, res) => {
           // Update companies
 exports.updateCompany = async (req, res) => {
   const { id } = req.params; 
-  const  updates= req.body;
+  const  {
+    companyName,
+    companyEmail,
+    companyPhone,
+    ownerName,
+    ownerEmail,
+    gstNo,
+    panNo,
+    businessType,
+    branchesIds,
+    username,
+    password,
+  }= req.body;
 
   try {
     const currentCompany = await Company.findById(id);
-    if(updates.username && updates.username !== currentCompany.username){
-      const alreadyExistUser = await findSameUsername(updates.username);
+    if(username && username !== currentCompany.username){
+      const alreadyExistUser = await findSameUsername(username);
       if(alreadyExistUser.exists){
         return res.status(404).json({ message: "Username already exist" });
       }
     }
- 
-    const company = await Company.findByIdAndUpdate(id,updates,
+
+    let changedpassword;
+
+    if (password) {
+      const isPasswordChanged =
+        !currentCompany.password || decrypt(currentCompany.password) !== password;
+    
+      if (isPasswordChanged) {
+        changedpassword = encrypt(password);
+      }
+    }
+    const company = await Company.findByIdAndUpdate(id,{
+
+      companyName,
+    companyEmail,
+    companyPhone,
+    ownerName,
+    ownerEmail,
+    gstNo,
+    panNo,
+    businessType,
+    branchesIds,
+    username,
+    password:changedpassword
+    },
       { new: true,
       runValidators: true,
     });

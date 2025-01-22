@@ -5,7 +5,7 @@ const Supervisor = require("../models/Supervisor");
 const User = require("../models/User");
 const mongoose = require('mongoose');
 const Salesman = require("../models/Salesman");
-const { decrypt } = require("../utils/cryptoUtils");
+const { decrypt, encrypt } = require("../utils/cryptoUtils");
 
 
 
@@ -93,29 +93,59 @@ exports.getBranches = async (req, res) => {
 // Update a Branch
 exports.updateBranch = async (req, res) => {
   const { id } = req.params;
-    const updates = req.body;
+    const {
+      companyId,
+      branchName,
+      branchLocation,
+      branchEmail,
+      branchPhone,
+      supervisorsIds,
+      username,
+      password,
+    } = req.body;
 
   try {
         const currentBranch = await Branch.findById(id);
     
-      if(updates.username&& updates.username !== currentBranch.username){
-        const alreadyExistUser = await findSameUsername(updates.username);
+      if(username&& username !== currentBranch.username){
+        const alreadyExistUser = await findSameUsername(username);
         if(alreadyExistUser.exists){
           return res.status(404).json({ message: "Username already exist" });
         }
       }
 
-    const updatedBranch = await Branch.findByIdAndUpdate(id,updates,{ new: true,
-                                                                  runValidators: true,
-                                                                });
+      let changedpassword;
+
+      if (password) {
+        const isPasswordChanged =
+          !currentBranch.password || decrypt(currentBranch.password) !== password;
+      
+        if (isPasswordChanged) {
+          changedpassword = encrypt(password);
+        }
+      }
+
+    const updatedBranch = await Branch.findByIdAndUpdate(id,{
+      companyId,
+      branchName,
+      branchLocation,
+      branchEmail,
+      branchPhone,
+      supervisorsIds,
+      username,
+      password:changedpassword,
+
+    },{ new: true,                                                            
+      runValidators: true,
+       });
     if (!updatedBranch) {
       return res.status(404).json({ message: "Branch not found for update" });
     }
 
-      const companyIdObjectId = new mongoose.Types.ObjectId(updates.companyId);
+      const companyIdObjectId = new mongoose.Types.ObjectId(companyId);
       const BranchIdObjectId = new mongoose.Types.ObjectId(id);
 
-    if(updates.companyId){
+    if(companyId){
 
         await Supervisor.updateMany({branchId:BranchIdObjectId}, { $set: { companyId:companyIdObjectId} } )
         await Salesman.updateMany({branchId:BranchIdObjectId}, { $set: { companyId: companyIdObjectId} } )

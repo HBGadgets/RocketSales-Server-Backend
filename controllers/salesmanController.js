@@ -3,6 +3,7 @@ const Salesman = require("../models/Salesman");
 const User = require("../models/User");
 const mongoose = require("mongoose");
 const findSameUsername = require("../utils/findSameUsername");
+const { decrypt, encrypt } = require("../utils/cryptoUtils");
 
 // Add a Salesman
 exports.addSalesman = async (req, res) => {
@@ -77,6 +78,13 @@ exports.getSalesmen = async (req, res) => {
     if (!salesmandata) {
       return res.status(404).json({ message: "Salesman not found" });
     }
+
+    salesmandata?.forEach(salesman=>{
+      const decryptedPassword  = decrypt(salesman.password);
+      salesman.password = decryptedPassword;
+
+     })
+
     res.status(200).json({ salesmandata });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -86,32 +94,49 @@ exports.getSalesmen = async (req, res) => {
 // Update Salesman
 exports.updateSalesman = async (req, res) => {
   const { id } = req.params;
-  // const {
-  //   companyId,
-  //   branchId,
-  //   supervisorId,
-  //   salesmanId,
-  //   salesmanName,
-  //   salesmanEmail,
-  //   salesmanPhone,
-  //   salesmanUsername,
-  //   salesmanPassword,
-  // } = req.body;
-  const updates = req.body;
+  const {
+    salesmanName,
+    salesmanEmail,
+    salesmanPhone,
+    username,
+    password,
+    companyId,
+    branchId,
+    supervisorId,
+  } = req.body;
 
   try {
     const currentSalesman = await Salesman.findById(id);
-    if (updates.username && updates.username !== currentSalesman.username) {
-      const existingUserByUsername = await findSameUsername(updates.username);
+    if (username && username !== currentSalesman.username) {
+      const existingUserByUsername = await findSameUsername(username);
       if (existingUserByUsername.exists) {
         return res.status(400).json({ message: "Username already exists" });
       }  
     }
+    let changedpassword;
+
+      if (password) {
+        const isPasswordChanged =
+          !currentSalesman.password || decrypt(currentSalesman.password) !== password;
+      
+        if (isPasswordChanged) {
+          changedpassword = encrypt(password);
+        }
+      }
     
     
     const updatedSalesman = await Salesman.findByIdAndUpdate(
       id,
-      updates,
+      {
+    salesmanName,
+    salesmanEmail,
+    salesmanPhone,
+    username,
+    password:changedpassword,
+    companyId,
+    branchId,
+    supervisorId,
+      },
       { new: true, runValidators: true }
     );
     if (!updatedSalesman) {
