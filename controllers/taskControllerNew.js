@@ -147,4 +147,27 @@ exports.updateTaskStatus = async (req, res) => {
   }
 };
 
+exports.getTasksBySalesmanId = async (req, res) => {
+  const { id } = req.params; // ID passed in the route parameters
+
+  try {
+    // Find tasks where the assignedTo field includes the given id
+    const tasks = await Task.find({ assignedTo: id })
+      .populate("companyId", "companyName")
+      .populate("branchId", "branchName")
+      .populate("supervisorId", "supervisorName");
+
+    // Check if tasks exist
+    if (!tasks || tasks.length === 0) {
+      return res.status(404).json({ message: "No tasks found for the provided ID." });
+    }
+
+    // Return tasks
+    res.status(200).json(tasks);
+  } catch (err) {
+    // Handle any errors
+    res.status(500).json({ message: err.message });
+  }
+};
+
 
