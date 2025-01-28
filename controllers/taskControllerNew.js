@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const Task = require('../models/Task');
 const Company = require('../models/Company');
+const { default: mongoose } = require('mongoose');
 
 
                 // Assign Task to salesman
@@ -150,9 +151,12 @@ exports.updateTaskStatus = async (req, res) => {
 exports.getTasksBySalesmanId = async (req, res) => {
   const { id } = req.params; // ID passed in the route parameters
 
+  const findId = new mongoose.Types.ObjectId(id);
+
+
   try {
     // Find tasks where the assignedTo field includes the given id
-    const tasks = await Task.find({ assignedTo: id })
+    const tasks = await Task.find({ assignedTo: findId })
       .populate("companyId", "companyName")
       .populate("branchId", "branchName")
       .populate("supervisorId", "supervisorName");
