@@ -80,7 +80,11 @@ exports.getAttendance = async (req, res) => {
              $gte: startOfDay,
              $lte: endOfDay,
            },
-         });
+         }).populate("companyId","companyName")
+         .populate("branchId","branchName")
+         .populate("supervisorId","supervisorName")
+         .populate("salesmanId","salesmanName");
+
        } else if (role == 'company') {
          todayAttendance = await Task.find({
            companyId: id,
@@ -88,7 +92,10 @@ exports.getAttendance = async (req, res) => {
              $gte: startOfDay,
              $lte: endOfDay,
            },
-         });
+         }).populate("companyId","companyName")
+                              .populate("branchId","branchName")
+                              .populate("supervisorId","supervisorName")
+                              .populate("salesmanId","salesmanName");
        } else if (role == 'branch') {
          todayAttendance = await Attendence.find({
            branchId: id,
@@ -96,7 +103,10 @@ exports.getAttendance = async (req, res) => {
              $gte: startOfDay,
              $lte: endOfDay,
            },
-         });
+         }).populate("companyId","companyName")
+         .populate("branchId","branchName")
+         .populate("supervisorId","supervisorName")
+         .populate("salesmanId","salesmanName");
        } else if (role == 'supervisor') {
          todayAttendance = await Attendence.find({
            supervisorId: id,
@@ -112,7 +122,10 @@ exports.getAttendance = async (req, res) => {
              $gte: startOfDay,
              $lte: endOfDay,
            },
-         });
+         }).populate("companyId","companyName")
+         .populate("branchId","branchName")
+         .populate("supervisorId","supervisorName")
+         .populate("salesmanId","salesmanName");
        }
    
        res.status(200).json({
