@@ -8,6 +8,9 @@ const branchRoutes = require('./routes/branchRoutes');
 const supervisorRoutes = require('./routes/supervisorRoutes');
 const salesmanRoutes = require('./routes/salesmanRoutes');
 const taskRoutesNew = require('./routes/taskRoutesNew');
+const attendenceRoutes = require('./routes/attendenceRoute');
+const leaveRequestRoutes = require('./routes/leaveRequestRoute');
+
 const connectDB = require("./config/db");
 
 const app = express();
@@ -36,6 +39,8 @@ app.use('/api', branchRoutes);
 app.use('/api', supervisorRoutes);  
 app.use('/api', salesmanRoutes);
 app.use('/api', taskRoutesNew);
+app.use('/api', attendenceRoutes);
+app.use('/api', leaveRequestRoutes);
 
 // app.use('/api/attendance', attendanceRoutes);
 
