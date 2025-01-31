@@ -21,8 +21,8 @@ const PORT = process.env.PORT || 5000;
 const corsOptions = {
 
   origin: "*", 
-  methods: ["GET", "POST","PUT","DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  // methods: ["GET", "POST","PUT","DELETE"],
+  // allowedHeaders: ["Content-Type", "Authorization"],
 };
 
   // Connect to mangodb
