@@ -10,6 +10,7 @@ const salesmanRoutes = require('./routes/salesmanRoutes');
 const taskRoutesNew = require('./routes/taskRoutesNew');
 const attendenceRoutes = require('./routes/attendenceRoute');
 const leaveRequestRoutes = require('./routes/leaveRequestRoute');
+const expenceRoute = require('./routes/expenceRoute');
 
 const connectDB = require("./config/db");
 
@@ -41,6 +42,7 @@ app.use('/api', salesmanRoutes);
 app.use('/api', taskRoutesNew);
 app.use('/api', attendenceRoutes);
 app.use('/api', leaveRequestRoutes);
+app.use('/api', expenceRoute);
 
 // app.use('/api/attendance', attendanceRoutes);
 
