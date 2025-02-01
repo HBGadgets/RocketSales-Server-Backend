@@ -1,9 +1,10 @@
 const Attendence = require("../models/Attendence");
 const LeaveRequest = require("../models/LeaveRequest");
 const moment = require("moment");
+const Salesman = require("../models/Salesman");
 
 
-exports.postAttendance = async (req, res) => {
+exports.postAttendance = async (req, res,filePath) => {
      try {
        const {
                
@@ -35,10 +36,10 @@ exports.postAttendance = async (req, res) => {
           createdAt: { $gte: startOfDay, $lte: endOfDay },
         });
 
-        let base64Image = null;
-        if (req.file) {
-               base64Image = req.file.buffer.toString("base64");
-        }
+        // let base64Image = null;
+        // if (filePath) {
+        //        base64Image = req.file.buffer.toString("base64");
+        // }
 
     
         if (existingAttendance) {
@@ -49,7 +50,7 @@ exports.postAttendance = async (req, res) => {
         }
    
        const newAttendance = new Attendence({
-               profileImgUrl:base64Image,
+               profileImgUrl:filePath,
                salesmanId,
                attendenceStatus,
                latitude,
@@ -276,5 +277,54 @@ exports.updateAttendance = async (req, res) => {
      }
    };
 
+ 
    
-
+exports.getForManualAttendance = async (req, res) => {
+     try {
+       const today = new Date();
+       today.setHours(0, 0, 0, 0); 
+       const tomorrow = new Date(today);
+       tomorrow.setDate(tomorrow.getDate() + 1); 
+   
+       const allSalesmen = await Salesman.find();
+   
+       const todayAttendance = await Attendence.find({
+         createdAt: { $gte: today, $lt: tomorrow },
+       });
+   
+   
+       if (todayAttendance.length === 0) {
+         return res.status(404).json({
+           success: false,
+           message: "No attendance found for today",
+         });
+       }
+   
+       const presentSalesmanIds = todayAttendance.map((att) => att.salesmanId.toString());
+   
+       const absentSalesmen = allSalesmen.filter(
+         (salesman) => !presentSalesmanIds.includes(salesman._id.toString())
+       );
+   
+       if (absentSalesmen.length > 0) {
+         return res.status(200).json({
+           success: true,
+           message: "Salesmen who did not attend today",
+           absentSalesmen,
+         });
+       } else {
+         return res.status(200).json({
+           success: true,
+           message: "All salesmen attended today",
+         });
+       }
+     } catch (error) {
+       console.error(error);
+       res.status(500).json({
+         success: false,
+         message: "An error occurred while fetching attendance",
+         error: error.message,
+       });
+     }
+   };
+   
