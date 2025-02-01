@@ -241,17 +241,8 @@ exports.updateAttendance = async (req, res) => {
 
      try {
        const { attendenceStatus } = req.body;
-       const { searchDate } = req.query;
        const {id} = req.params;
 
-
-      //  const findDate = searchDate ? new Date(searchDate) : new Date();
-      const startOfDay = new Date(searchDate);
-      startOfDay.setHours(0, 0, 0, 0);
-    
-      const endOfDay = new Date(searchDate);
-      endOfDay.setHours(23, 59, 59, 999);
-   
        if (!attendenceStatus) {
          return res.status(400).json({
            success: false,
@@ -260,11 +251,7 @@ exports.updateAttendance = async (req, res) => {
        }
    
        const attendance = await Attendence.findOneAndUpdate(
-        { salesmanId: id,createdAt: {
-        $gte: startOfDay, 
-        $lte: endOfDay, 
-      },
-    },
+        { _id: id,},
         { $set: { attendenceStatus } },
         { new: true, upsert: false } 
       );

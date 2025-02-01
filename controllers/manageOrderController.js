@@ -53,8 +53,6 @@ exports.ganaretInvoice = async (req, res) => {
      }
 }
 
-
-
 exports.getInvoice = async (req, res) => {
 
   const { id,role } = req.user;
@@ -103,28 +101,81 @@ exports.getInvoice = async (req, res) => {
   }
 }
 
-// exports.updateInvoice = async (req, res) => {
-//   const { id } = req.params;
-//   const {
-//     customerName,
-//     customerAddress,
-//     companyName,
-//     companyAddress,
-//     quantity,
-//     date,
-//     gst,
-//     HSNcode,
-//     discount,
-//     Unitprice,
-//     totalAmount,
-//     companyId,
-//     branchId,     
-//     supervisorId,} = req.body; 
-  
-  
-  
-  
-  
-  
-//   }
+exports.updateInvoice = async (req, res) => {
+  const  {id}  = req.params;
+  const {
+    customerName,
+    customerAddress,
+    companyName,
+    companyAddress,
+    quantity,
+    date,
+    gst,
+    HSNcode,
+    discount,
+    Unitprice,
+    totalAmount,
+    companyId,
+    branchId,     
+    supervisorId,} = req.body; 
+    
+    try {
+      
+      const updatedInvoice = await Invoice.findOneAndUpdate({_id:id}, {customerName,
+        customerAddress,
+        companyName,
+        companyAddress,
+        quantity,
+        date,
+        gst,
+        HSNcode,
+        discount,
+        Unitprice,
+        totalAmount,
+        companyId,
+        branchId,     
+        supervisorId, }, 
+      { new: true, upsert: false } 
+      );
 
+        if (!updatedInvoice) {
+          return res.status(404).json({ message: 'Invoice not found for update' });
+        }
+
+      res.status(200).json({ 
+        success: true,
+        message: 'Invoice updated successfully',
+        data: updatedInvoice,
+      }); 
+      
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  
+  
+  
+  
+  
+  
+  }
+
+exports.deleteInvoice = async (req, res) => {
+
+  try {
+    const { id } = req.params;
+
+    const deletedInvoice = await Invoice.findByIdAndDelete(id);
+
+    if (!deletedInvoice) {
+      return res.status(404).json({ message: 'Invoice not found' });
+    }
+
+    res.status(200).json({ 
+      success: true,
+      message: 'Invoice deleted successfully',
+    });
+    
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
