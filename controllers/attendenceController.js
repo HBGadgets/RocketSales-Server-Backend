@@ -4,7 +4,15 @@ const LeaveRequest = require("../models/LeaveRequest");
 
 exports.postAttendance = async (req, res) => {
      try {
-       const {profileImgUrl, salesmanId, attendenceStatus,latitude,longitude,companyId,branchId,supervisorId } = req.body;
+       const {
+               
+               salesmanId, 
+               attendenceStatus,
+               latitude,
+               longitude,
+               companyId,
+               branchId,
+               supervisorId } = req.body;
 
        const startOfDay = new Date();
        startOfDay.setHours(0, 0, 0, 0);
@@ -13,7 +21,7 @@ exports.postAttendance = async (req, res) => {
        endOfDay.setHours(23, 59, 59, 999);
    
       
-       if (!salesmanId || !attendenceStatus || !profileImgUrl) {
+       if (!salesmanId || !attendenceStatus) {
          return res.status(400).json({
            success: false,
            message: 'Both `salesmanId` and `attendenceStatus` are required.',
@@ -25,6 +33,12 @@ exports.postAttendance = async (req, res) => {
           attendenceStatus: { $in: ['Present', 'Absent'] }, 
           createdAt: { $gte: startOfDay, $lte: endOfDay },
         });
+
+        let base64Image = null;
+        if (req.file) {
+               base64Image = req.file.buffer.toString("base64");
+        }
+
     
         if (existingAttendance) {
           return res.status(400).json({
@@ -34,7 +48,7 @@ exports.postAttendance = async (req, res) => {
         }
    
        const newAttendance = new Attendence({
-               profileImgUrl,
+               profileImgUrl:base64Image,
                salesmanId,
                attendenceStatus,
                latitude,

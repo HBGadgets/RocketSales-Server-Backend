@@ -1,21 +1,26 @@
+const multer = require("multer");
 const Expence = require("../models/Expence");
 
 
 
-exports.postExpence = async (req,res) => {
 
+exports.postExpence = async (req,res) => {
 
      try {
           const { 
                expenceType,
                expenceDescription,
                date,
-               billDoc,
                amount,
                salesmanId,
                companyId,
                branchId,
                supervisorId } =req.body;
+
+          let base64Image = null;
+          if (req.file) {
+                 base64Image = req.file.buffer.toString("base64");
+          }
 
           if(!expenceType || !amount){
                return res.status(400).json({
@@ -28,7 +33,7 @@ exports.postExpence = async (req,res) => {
           expenceType,
           expenceDescription,
           date,
-          billDoc,
+          billDoc:base64Image,
           amount,
           salesmanId,
           companyId,
