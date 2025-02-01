@@ -8,7 +8,7 @@ const { default: mongoose } = require('mongoose');
 
 exports.addTasks = async (req, res) => {
 
-     const { taskDescription, deadline, assignedTo, latitude ,longitude,companyId, branchId, supervisorId } = req.body; 
+     const { taskDescription, deadline, assignedTo, latitude ,longitude,address,companyId, branchId, supervisorId } = req.body; 
    
      try {
        const company = await Company.findById(companyId);
@@ -22,6 +22,7 @@ exports.addTasks = async (req, res) => {
           status: 'Pending',
           deadline, 
           assignedTo, 
+          address,
           latitude ,
           longitude,
           companyId,

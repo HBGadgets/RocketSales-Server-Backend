@@ -24,12 +24,22 @@ exports.addSalesman = async (req, res) => {
       return res.status(400).json({ message: "Username already exists" });
     }
 
+    if (!username || !password) {
+      return res.status(400).json({ message: "Username is required" });
+    }
+    let base64Image = null;
+
+    if(req.file){
+       base64Image = req.file.buffer.toString("base64");
+    }
+
     const salesmanId = new mongoose.Types.ObjectId();
     const newSalesman = new Salesman({
       _id: salesmanId,
       salesmanName,
       salesmanEmail,
       salesmanPhone,
+      profileImage: base64Image,
       username,
       password,
       companyId,

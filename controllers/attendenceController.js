@@ -1,5 +1,6 @@
 const Attendence = require("../models/Attendence");
 const LeaveRequest = require("../models/LeaveRequest");
+const moment = require("moment");
 
 
 exports.postAttendance = async (req, res) => {
@@ -75,85 +76,165 @@ exports.postAttendance = async (req, res) => {
 
 
    
+// exports.getAttendance = async (req, res) => {
+//      try {
+//        let todayAttendance;
+   
+//        const { role, id } = req.user;
+//        const { startDate, endDate } = req.query;
+   
+//        const startOfDay = startDate ? new Date(startDate) : new Date();
+//        const endOfDay = endDate ? new Date(endDate) : new Date();
+   
+//        if (!startDate) startOfDay.setHours(0, 0, 0, 0);
+//        if (!endDate) endOfDay.setHours(23, 59, 59, 999);
+   
+//        if (role == 'superadmin') {
+//          todayAttendance = await Attendence.find({
+//            createdAt: {
+//              $gte: startOfDay,
+//              $lte: endOfDay,
+//            },
+//          }).populate("companyId","companyName")
+//          .populate("branchId","branchName")
+//          .populate("supervisorId","supervisorName")
+//          .populate("salesmanId","salesmanName");
+
+//        } else if (role == 'company') {
+//          todayAttendance = await Task.find({
+//            companyId: id,
+//            createdAt: {
+//              $gte: startOfDay,
+//              $lte: endOfDay,
+//            },
+//          }).populate("companyId","companyName")
+//                               .populate("branchId","branchName")
+//                               .populate("supervisorId","supervisorName")
+//                               .populate("salesmanId","salesmanName");
+//        } else if (role == 'branch') {
+//          todayAttendance = await Attendence.find({
+//            branchId: id,
+//            createdAt: {
+//              $gte: startOfDay,
+//              $lte: endOfDay,
+//            },
+//          }).populate("companyId","companyName")
+//          .populate("branchId","branchName")
+//          .populate("supervisorId","supervisorName")
+//          .populate("salesmanId","salesmanName");
+//        } else if (role == 'supervisor') {
+//          todayAttendance = await Attendence.find({
+//            supervisorId: id,
+//            createdAt: {
+//              $gte: startOfDay,
+//              $lte: endOfDay,
+//            },
+//          });
+//        } else if (role == 'salesman') {
+//          todayAttendance = await Attendence.find({
+//            salesmanId: id,
+//            createdAt: {
+//              $gte: startOfDay,
+//              $lte: endOfDay,
+//            },
+//          }).populate("companyId","companyName")
+//          .populate("branchId","branchName")
+//          .populate("supervisorId","supervisorName")
+//          .populate("salesmanId","salesmanName");
+//        }
+   
+//        res.status(200).json({
+//          success: true,
+//          data: todayAttendance,
+//        });
+//      } catch (error) {
+//        res.status(500).json({
+//          success: false,
+//          message: error.message,
+//        });
+//      }
+//    };
+
+
 exports.getAttendance = async (req, res) => {
-     try {
-       let todayAttendance;
-   
-       const { role, id } = req.user;
-       const { startDate, endDate } = req.query;
-   
-       const startOfDay = startDate ? new Date(startDate) : new Date();
-       const endOfDay = endDate ? new Date(endDate) : new Date();
-   
-       if (!startDate) startOfDay.setHours(0, 0, 0, 0);
-       if (!endDate) endOfDay.setHours(23, 59, 59, 999);
-   
-       if (role == 'superadmin') {
-         todayAttendance = await Attendence.find({
-           createdAt: {
-             $gte: startOfDay,
-             $lte: endOfDay,
-           },
-         }).populate("companyId","companyName")
-         .populate("branchId","branchName")
-         .populate("supervisorId","supervisorName")
-         .populate("salesmanId","salesmanName");
+  try {
+    let todayAttendance;
+    const { role, id } = req.user;
+    const { startDate, endDate, filter } = req.query;
 
-       } else if (role == 'company') {
-         todayAttendance = await Task.find({
-           companyId: id,
-           createdAt: {
-             $gte: startOfDay,
-             $lte: endOfDay,
-           },
-         }).populate("companyId","companyName")
-                              .populate("branchId","branchName")
-                              .populate("supervisorId","supervisorName")
-                              .populate("salesmanId","salesmanName");
-       } else if (role == 'branch') {
-         todayAttendance = await Attendence.find({
-           branchId: id,
-           createdAt: {
-             $gte: startOfDay,
-             $lte: endOfDay,
-           },
-         }).populate("companyId","companyName")
-         .populate("branchId","branchName")
-         .populate("supervisorId","supervisorName")
-         .populate("salesmanId","salesmanName");
-       } else if (role == 'supervisor') {
-         todayAttendance = await Attendence.find({
-           supervisorId: id,
-           createdAt: {
-             $gte: startOfDay,
-             $lte: endOfDay,
-           },
-         });
-       } else if (role == 'salesman') {
-         todayAttendance = await Attendence.find({
-           salesmanId: id,
-           createdAt: {
-             $gte: startOfDay,
-             $lte: endOfDay,
-           },
-         }).populate("companyId","companyName")
-         .populate("branchId","branchName")
-         .populate("supervisorId","supervisorName")
-         .populate("salesmanId","salesmanName");
-       }
-   
-       res.status(200).json({
-         success: true,
-         data: todayAttendance,
-       });
-     } catch (error) {
-       res.status(500).json({
-         success: false,
-         message: error.message,
-       });
-     }
-   };
+    let startOfDay, endOfDay;
 
+    switch (filter) {
+      case "today":
+        startOfDay = moment().startOf("day").toDate();
+        endOfDay = moment().endOf("day").toDate();
+        break;
+      case "yesterday":
+        startOfDay = moment().subtract(1, "days").startOf("day").toDate();
+        endOfDay = moment().subtract(1, "days").endOf("day").toDate();
+        break;
+      case "thisWeek":
+        startOfDay = moment().startOf("week").toDate();
+        endOfDay = moment().endOf("week").toDate();
+        break;
+      case "lastWeek":
+        startOfDay = moment().subtract(1, "weeks").startOf("week").toDate();
+        endOfDay = moment().subtract(1, "weeks").endOf("week").toDate();
+        break;
+      case "thisMonth":
+        startOfDay = moment().startOf("month").toDate();
+        endOfDay = moment().endOf("month").toDate();
+        break;
+      case "preMonth":
+        startOfDay = moment().subtract(1, "months").startOf("month").toDate();
+        endOfDay = moment().subtract(1, "months").endOf("month").toDate();
+        break;
+      default:
+        startOfDay = startDate ? new Date(startDate) : moment().startOf("day").toDate();
+        endOfDay = endDate ? new Date(endDate) : moment().endOf("day").toDate();
+    }
+
+    let query = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
+
+    if (role === "superadmin") {
+      todayAttendance = await Attendence.find(query)
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName")
+        .populate("salesmanId", "salesmanName");
+    } else if (role === "company") {
+      todayAttendance = await Attendence.find({ ...query, companyId: id })
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName")
+        .populate("salesmanId", "salesmanName");
+    } else if (role === "branch") {
+      todayAttendance = await Attendence.find({ ...query, branchId: id })
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName")
+        .populate("salesmanId", "salesmanName");
+    } else if (role === "supervisor") {
+      todayAttendance = await Attendence.find({ ...query, supervisorId: id });
+    } else if (role === "salesman") {
+      todayAttendance = await Attendence.find({ ...query, salesmanId: id })
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName")
+        .populate("salesmanId", "salesmanName");
+    }
+
+    res.status(200).json({
+      success: true,
+      data: todayAttendance,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 
 exports.updateAttendance = async (req, res) => {

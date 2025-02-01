@@ -9,8 +9,9 @@ const taskSchema = new mongoose.Schema({
   companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
   branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch' },
   supervisorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' }, 
-  latitude:{type: Number, required: true },
-  longitude:{type: Number, required: true },
+  address: { type: String, },
+  // latitude:{type: Number, required: true },
+  // longitude:{type: Number, required: true },
   complitionDate:{type: String, },
 }, { timestamps: true });
 

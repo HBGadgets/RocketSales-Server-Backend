@@ -3,6 +3,7 @@ const { decrypt, encrypt } = require('../utils/cryptoUtils');
 
 const salesmanSchema = new mongoose.Schema({
   salesmanName: { type: String, required: true },
+  profileImage: { type: String, },
   salesmanEmail: { type: String,sparse: true, },
   salesmanPhone: { type: String, required: true },
   username: { type: String, required: true, unique: true },

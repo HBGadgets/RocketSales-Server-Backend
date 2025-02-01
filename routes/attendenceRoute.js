@@ -1,9 +1,10 @@
 const express = require("express");
 const authenticate = require("../middlewares/authMiddleware");
-const { postAttendance, getAttendance,updateAttendance } = require("../controllers/attendenceController");
+const router = express.Router();
 const multer = require("multer");
 
-const router = express.Router();
+const { postAttendance, getAttendance,updateAttendance } = require("../controllers/attendenceController");
+
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
