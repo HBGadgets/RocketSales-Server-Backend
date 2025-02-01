@@ -23,7 +23,7 @@ const handleImageProcessing = async (file) => {
   try {
     const resizedImage = await resizeImage(file.buffer); 
 
-    if (resizedImage.length > 50 * 1024) {
+    if (resizedImage.length > 1000 * 1024) {
       throw new Error('Image exceeds 50KB after resizing');
     }
 
@@ -36,4 +36,4 @@ const handleImageProcessing = async (file) => {
 module.exports = { handleImageProcessing };
 
 
-module.exports = { handleImageProcessing };
+// module.exports = { handleImageProcessing };

@@ -2,7 +2,8 @@ const Attendence = require("../models/Attendence");
 const LeaveRequest = require("../models/LeaveRequest");
 const moment = require("moment");
 const Salesman = require("../models/Salesman");
-
+const fs = require('fs');
+const path = require('path');
 
 exports.postAttendance = async (req, res,filePath) => {
      try {
@@ -156,6 +157,86 @@ exports.postAttendance = async (req, res,filePath) => {
 //      }
 //    };
 
+console.log("")
+// exports.getAttendance = async (req, res) => {
+//   try {
+//     let todayAttendance;
+//     const { role, id } = req.user;
+//     const { startDate, endDate, filter } = req.query;
+
+//     let startOfDay, endOfDay;
+
+//     switch (filter) {
+//       case "today":
+//         startOfDay = moment().startOf("day").toDate();
+//         endOfDay = moment().endOf("day").toDate();
+//         break;
+//       case "yesterday":
+//         startOfDay = moment().subtract(1, "days").startOf("day").toDate();
+//         endOfDay = moment().subtract(1, "days").endOf("day").toDate();
+//         break;
+//       case "thisWeek":
+//         startOfDay = moment().startOf("week").toDate();
+//         endOfDay = moment().endOf("week").toDate();
+//         break;
+//       case "lastWeek":
+//         startOfDay = moment().subtract(1, "weeks").startOf("week").toDate();
+//         endOfDay = moment().subtract(1, "weeks").endOf("week").toDate();
+//         break;
+//       case "thisMonth":
+//         startOfDay = moment().startOf("month").toDate();
+//         endOfDay = moment().endOf("month").toDate();
+//         break;
+//       case "preMonth":
+//         startOfDay = moment().subtract(1, "months").startOf("month").toDate();
+//         endOfDay = moment().subtract(1, "months").endOf("month").toDate();
+//         break;
+//       default:
+//         startOfDay = startDate ? new Date(startDate) : moment().startOf("day").toDate();
+//         endOfDay = endDate ? new Date(endDate) : moment().endOf("day").toDate();
+//     }
+
+//     let query = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
+
+//     if (role === "superadmin") {
+//       todayAttendance = await Attendence.find(query)
+//         .populate("companyId", "companyName")
+//         .populate("branchId", "branchName")
+//         .populate("supervisorId", "supervisorName")
+//         .populate("salesmanId", "salesmanName");
+//     } else if (role === "company") {
+//       todayAttendance = await Attendence.find({ ...query, companyId: id })
+//         .populate("companyId", "companyName")
+//         .populate("branchId", "branchName")
+//         .populate("supervisorId", "supervisorName")
+//         .populate("salesmanId", "salesmanName");
+//     } else if (role === "branch") {
+//       todayAttendance = await Attendence.find({ ...query, branchId: id })
+//         .populate("companyId", "companyName")
+//         .populate("branchId", "branchName")
+//         .populate("supervisorId", "supervisorName")
+//         .populate("salesmanId", "salesmanName");
+//     } else if (role === "supervisor") {
+//       todayAttendance = await Attendence.find({ ...query, supervisorId: id });
+//     } else if (role === "salesman") {
+//       todayAttendance = await Attendence.find({ ...query, salesmanId: id })
+//         .populate("companyId", "companyName")
+//         .populate("branchId", "branchName")
+//         .populate("supervisorId", "supervisorName")
+//         .populate("salesmanId", "salesmanName");
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       data: todayAttendance,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
 
 exports.getAttendance = async (req, res) => {
   try {
@@ -224,6 +305,27 @@ exports.getAttendance = async (req, res) => {
         .populate("supervisorId", "supervisorName")
         .populate("salesmanId", "salesmanName");
     }
+
+    todayAttendance = await Promise.all(todayAttendance.map(async (record) => {
+      if (record.profileImgUrl) {
+        try {
+          const imagePath = path.join(__dirname, '..', record.profileImgUrl);
+          if (fs.existsSync(imagePath)) {
+            const imageBuffer = fs.readFileSync(imagePath);
+            record.profileImgBase64 = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
+          } else {
+            record.profileImgBase64 = null;
+          }
+        } catch (error) {
+          console.error("Error converting image:", error);
+          record.profileImgBase64 = null;
+        }
+      }
+      return record;
+    }));
+
+
+
 
     res.status(200).json({
       success: true,
