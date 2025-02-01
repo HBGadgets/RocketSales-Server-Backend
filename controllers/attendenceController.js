@@ -388,11 +388,13 @@ exports.getForManualAttendance = async (req, res) => {
        const tomorrow = new Date(today);
        tomorrow.setDate(tomorrow.getDate() + 1); 
    
-       const allSalesmen = await Salesman.find();
-   
+       const allSalesmen = await Salesman.find().populate("companyId", "companyName")
+                                                .populate("branchId", "branchName")
+                                                .populate("supervisorId", "supervisorName");
+                                            
        const todayAttendance = await Attendence.find({
          createdAt: { $gte: today, $lt: tomorrow },
-       });
+       })
    
    
        if (todayAttendance.length === 0) {
