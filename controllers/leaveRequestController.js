@@ -63,27 +63,27 @@ exports.getLeaveRequest = async (req,res) => {
           const { status} = req.query;
  
            if(role=='superadmin'){
-               pendingLeaveRequest = await LeaveRequest.find({leaveRequestStatus:status || "Pending"})
+               pendingLeaveRequest = await LeaveRequest.find()
                               .populate("companyId","companyName")
                               .populate("branchId","branchName")
                               .populate("supervisorId","supervisorName")
                               .populate("salesmanId","salesmanName");
           
                              }else if(role =='company'){
-               pendingLeaveRequest = await LeaveRequest.find({ companyId: id,leaveRequestStatus:status || "Pending" })
+               pendingLeaveRequest = await LeaveRequest.find({ companyId: id })
                               .populate("branchId","branchName")
                               .populate("supervisorId","supervisorName")
                               .populate("salesmanId","salesmanName");
           
           
                              }else if(role =='branch'){
-               pendingLeaveRequest = await LeaveRequest.find({ branchId: id,leaveRequestStatus:status || "Pending" })
+               pendingLeaveRequest = await LeaveRequest.find({ branchId: id, })
                               .populate("supervisorId","supervisorName")
                               .populate("salesmanId","salesmanName");
                               ;
                       
                              }else if(role =='supervisor'){
-               pendingLeaveRequest = await LeaveRequest.find({ supervisorId: id,leaveRequestStatus:status || "Pending" })
+               pendingLeaveRequest = await LeaveRequest.find({ supervisorId: id, })
                               .populate("companyId","companyName")
                               .populate("branchId","branchName")                    
                               .populate("salesmanId","salesmanName");
@@ -143,3 +143,62 @@ exports.putLeaveRequestStatus = async (req,res) =>{
      });     
 }
 }
+
+// exports.getLeaveRequest = async (req,res) => {
+
+//   try {
+//        let pendingLeaveRequest;
+
+//        const { id } = req.user;
+//        const { role } = req.user;          
+//        const { status} = req.query;
+
+//         if(role=='superadmin'){
+//             pendingLeaveRequest = await LeaveRequest.find({leaveRequestStatus:status || "Pending"})
+//                            .populate("companyId","companyName")
+//                            .populate("branchId","branchName")
+//                            .populate("supervisorId","supervisorName")
+//                            .populate("salesmanId","salesmanName");
+       
+//                           }else if(role =='company'){
+//             pendingLeaveRequest = await LeaveRequest.find({ companyId: id,leaveRequestStatus:status || "Pending" })
+//                            .populate("branchId","branchName")
+//                            .populate("supervisorId","supervisorName")
+//                            .populate("salesmanId","salesmanName");
+       
+       
+//                           }else if(role =='branch'){
+//             pendingLeaveRequest = await LeaveRequest.find({ branchId: id,leaveRequestStatus:status || "Pending" })
+//                            .populate("supervisorId","supervisorName")
+//                            .populate("salesmanId","salesmanName");
+//                            ;
+                   
+//                           }else if(role =='supervisor'){
+//             pendingLeaveRequest = await LeaveRequest.find({ supervisorId: id,leaveRequestStatus:status || "Pending" })
+//                            .populate("companyId","companyName")
+//                            .populate("branchId","branchName")                    
+//                            .populate("salesmanId","salesmanName");
+       
+                   
+//                           }else if(role =='salesman'){
+//             pendingLeaveRequest = await LeaveRequest.find({ salesmanId: id})
+//                            .populate("companyId","companyName")
+//                            .populate("branchId","branchName")
+//                            .populate("supervisorId","supervisorName");
+                   
+//   }
+//   res.status(200).json({ 
+//        success: true,
+//        message: 'All Pending requset get successfully',
+//        data: pendingLeaveRequest,
+//   })
+       
+//   } catch (error) {
+//        res.status(500).json({
+//             success: false,
+//             message: 'An error occurred while processing the leave request.',
+//             error: error.message,
+//        }); 
+//   }
+  
+// }
