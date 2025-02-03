@@ -42,7 +42,6 @@ exports.postAttendance = async (req, res,profileImgBase64) => {
         //        base64Image = req.file.buffer.toString("base64");
         // }
 
-        console.log("first",profileImgBase64)
     
         if (existingAttendance) {
           return res.status(400).json({
@@ -78,7 +77,6 @@ exports.postAttendance = async (req, res,profileImgBase64) => {
    };
 
 
-   
 // exports.getAttendance = async (req, res) => {
 //      try {
 //        let todayAttendance;
@@ -218,13 +216,17 @@ exports.getAttendance = async (req, res) => {
         .populate("supervisorId", "supervisorName")
         .populate("salesmanId", "salesmanName");
     } else if (role === "supervisor") {
-      todayAttendance = await Attendence.find({ ...query, supervisorId: id });
+      todayAttendance = await Attendence.find({ ...query, supervisorId: id })  
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        // .populate("supervisorId", "supervisorName")
+        .populate("salesmanId", "salesmanName");
     } else if (role === "salesman") {
       todayAttendance = await Attendence.find({ ...query, salesmanId: id })
         .populate("companyId", "companyName")
         .populate("branchId", "branchName")
         .populate("supervisorId", "supervisorName")
-        .populate("salesmanId", "salesmanName");
+        // .populate("salesmanId", "salesmanName");
     }
 
     res.status(200).json({

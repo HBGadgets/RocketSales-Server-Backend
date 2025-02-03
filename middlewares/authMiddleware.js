@@ -32,17 +32,17 @@ const authenticate = async(req, res, next) => {
       } else {
           user = await Branch.findById(decoded.id);
           if (user) {
-              req.user = { id: user._id, role: 'branch' };
+              req.user = { id: user._id, role: 'branch',companyId:user.companyId };
               sperr = true;
           } else {
               user = await Supervisor.findById(decoded.id);
               if (user) {
-                  req.user = { id: user._id, role: 'supervisor' };
+                  req.user = { id: user._id, role: 'supervisor',companyId:user.companyId };
                   sperr = true;
               } else {
                   user = await Salesman.findById(decoded.id);
                   if (user) {
-                      req.user = { id: user._id, role: 'salesman' };
+                      req.user = { id: user._id, role: 'salesman',companyId:user.companyId };
                       sperr = true;
                   } else {
                       // Handle case where no matching user is found

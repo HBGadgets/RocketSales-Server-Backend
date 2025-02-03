@@ -1,4 +1,7 @@
 const Invoice = require("../models/Invoice");
+const Order = require("../models/Order");
+const moment = require("moment");
+const ProductCollection = require("../models/ProductCollection");
 
                 // Invoice API controller
 
@@ -196,13 +199,13 @@ exports.postOrder = async (req, res) => {
 
   try {
 
-    const { productName,quantity } = req.body;
+    const { productName,quantity,shopName,shopOwnerName,phoneNo,deliveryDate,shopAddress,companyId,branchId,supervisorId,salesmanId  } = req.body;
 
     if (!productName || !quantity) {
       return res.status(404).json({ message: 'Product Name & Quantity is required' });
     }
 
-    const newOrder = new Order({productName,quantity});
+    const newOrder = new Order({productName,quantity,shopName,shopOwnerName,phoneNo,deliveryDate,shopAddress,companyId,branchId,supervisorId,salesmanId});
     const savedOrder = await newOrder.save();
 
     res.status(201).json({ message: 'Order added successfully', data: savedOrder });
@@ -216,25 +219,101 @@ exports.postOrder = async (req, res) => {
 exports.getOrders = async (req, res) => {
 
   try {
-    const orders = await Order.find();
-    res.status(200).json({ message: 'Orders get successfully', data: orders });
+    let orders;
+    const { role, id } = req.user;
+    const { startDate, endDate, filter } = req.query;
 
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+    let startOfDay, endOfDay;
+
+    switch (filter) {
+      case "today":
+        startOfDay = moment().startOf("day").toDate();
+        endOfDay = moment().endOf("day").toDate();
+        break;
+      case "yesterday":
+        startOfDay = moment().subtract(1, "days").startOf("day").toDate();
+        endOfDay = moment().subtract(1, "days").endOf("day").toDate();
+        break;
+      case "thisWeek":
+        startOfDay = moment().startOf("week").toDate();
+        endOfDay = moment().endOf("week").toDate();
+        break;
+      case "lastWeek":
+        startOfDay = moment().subtract(1, "weeks").startOf("week").toDate();
+        endOfDay = moment().subtract(1, "weeks").endOf("week").toDate();
+        break;
+      case "thisMonth":
+        startOfDay = moment().startOf("month").toDate();
+        endOfDay = moment().endOf("month").toDate();
+        break;
+      case "preMonth":
+        startOfDay = moment().subtract(1, "months").startOf("month").toDate();
+        endOfDay = moment().subtract(1, "months").endOf("month").toDate();
+        break;
+      default:
+        startOfDay = startDate ? new Date(startDate) : moment().startOf("day").toDate();
+        endOfDay = endDate ? new Date(endDate) : moment().endOf("day").toDate();
+    }
+
+    let query = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
+
+    if (role === "superadmin") {
+      orders = await Order.find(query)
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName")
+        .populate("salesmanId", "salesmanName");
+    } else if (role === "company") {
+      orders = await Order.find({ ...query, companyId: id })
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName")
+        .populate("salesmanId", "salesmanName");
+    } else if (role === "branch") {
+      orders = await Order.find({ ...query, branchId: id })
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName")
+        .populate("salesmanId", "salesmanName");
+    } else if (role === "supervisor") {
+      orders = await Order.find({ ...query, supervisorId: id })
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName")
+        .populate("salesmanId", "salesmanName");
+    } else if (role === "salesman") {
+      orders = await Order.find({ ...query, salesmanId: id })
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName")
+        .populate("salesmanId", "salesmanName");
+    }
+
+    res.status(200).json({
+      success: true,
+      data: orders,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  
+};
 } 
 
 
 exports.updateOrder = async (req, res) => {
   const { id } = req.params;
-  const { productName, quantity } = req.body;
+  const { productName,quantity,shopName,shopOwnerName,phoneNo,deliveryDate,shopAddress,companyId,branchId,supervisorId,salesmanId } = req.body;
 
   try {
-    const updatedOrder = await Order.findOneAndUpdate({ _id: id }, { productName, quantity }, { new: true, upsert: false });
+    const updatedOrder = await Order.findOneAndUpdate({ _id: id }, { productName,quantity,shopName,shopOwnerName,phoneNo,deliveryDate,shopAddress,companyId,branchId,supervisorId,salesmanId}, { new: true, upsert: false });
 
     if (!updatedOrder) {
       return res.status(404).json({ message: 'Order not found for update' });
     }
+    res.status(200).json({ message: 'Order updated successfully', data: updatedOrder });
 
   }catch (err) {  
     res.status(500).json({ message: err.message });
@@ -264,13 +343,13 @@ exports.deleteOrder = async (req, res) => {
 
 exports.postProduct = async (req, res) => {  
   try {
-    const { productName, quantity } = req.body;
+    const { productName, quantity,companyId} = req.body;
 
-    if (!productName || !quantity) {
+    if (!productName || !quantity ||!companyId) {
       return res.status(404).json({ message: 'Product Name & Quantity is required' });
     }
 
-    const newProduct = new Product({ productName, quantity });
+    const newProduct = new ProductCollection({ productName, quantity,companyId });
     const savedProduct = await newProduct.save();
 
     res.status(201).json({ message: 'Product added successfully', data: savedProduct });
@@ -280,9 +359,50 @@ exports.postProduct = async (req, res) => {
   }
 }
 
+
 exports.getProducts = async (req, res) => {
-  try {
-    const products = await Product.find();
+
+  const { id, role, companyId } = req.user;
+  let products;
+  try { 
+    
+    
+    if(role=='superadmin'){
+                      products = await ProductCollection.find()
+                      .populate("companyId","companyName")
+                      .populate("branchId","branchName")
+                      .populate("supervisorId","supervisorName")
+                      .populate("salesmanId","salesmanName");
+  
+                     }else if(role =='company'){
+                      products = await ProductCollection.find({companyId:id})
+                      .populate("branchId","branchName")
+                      .populate("supervisorId","supervisorName")
+                      .populate("salesmanId","salesmanName");
+  
+  
+                     }else if(role =='branch'){
+                      products = await ProductCollection.find({companyId:companyId})
+                      .populate("supervisorId","supervisorName")
+                      .populate("salesmanId","salesmanName");
+                      ;
+              
+                     }else if(role =='supervisor'){
+                      products = await ProductCollection.find({companyId:companyId})
+                      .populate("companyId","companyName")
+                      .populate("branchId","branchName")                    
+                      .populate("salesmanId","salesmanName");
+  
+              
+                     }else if(role =='salesman'){
+                      products = await ProductCollection.find({companyId:companyId})
+                      .populate("companyId","companyName")
+                      .populate("branchId","branchName")
+                      .populate("supervisorId","supervisorName")
+                      .populate("salesmanId","salesmanName");
+              
+                     }
+
     res.status(200).json({ message: 'Products get successfully', data: products });
 
   } catch (err) {
@@ -292,13 +412,15 @@ exports.getProducts = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   const { id } = req.params;
-  const { productName, quantity } = req.body;
+  const { productName, quantity,companyId } = req.body;
 
   try {
-    const updatedProduct = await Product.findOneAndUpdate({ _id: id }, { productName, quantity }, { new: true, upsert: false });  
+    const updatedProduct = await ProductCollection.findOneAndUpdate({ _id: id }, { productName, quantity,companyId }, { new: true, upsert: false });  
       if (!updatedProduct) {
         return res.status(404).json({ message: 'Product not found for update' });
       }   
+
+      res.status(200).json({ message: 'Product updated successfully', data: updatedProduct });
 
     } catch (err) {   
       res.status(500).json({ message: err.message });
@@ -309,7 +431,7 @@ exports.deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deletedProduct = await Product.findByIdAndDelete(id);
+    const deletedProduct = await ProductCollection.findByIdAndDelete(id);
 
     if (!deletedProduct) {
       return res.status(404).json({ message: 'Product not found' });
