@@ -1,5 +1,6 @@
 const Invoice = require("../models/Invoice");
 
+                // Invoice API controller
 
 exports.ganaretInvoice = async (req, res) => {
 
@@ -211,6 +212,7 @@ exports.postOrder = async (req, res) => {
   }
 }
 
+
 exports.getOrders = async (req, res) => {
 
   try {
@@ -221,3 +223,102 @@ exports.getOrders = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 } 
+
+
+exports.updateOrder = async (req, res) => {
+  const { id } = req.params;
+  const { productName, quantity } = req.body;
+
+  try {
+    const updatedOrder = await Order.findOneAndUpdate({ _id: id }, { productName, quantity }, { new: true, upsert: false });
+
+    if (!updatedOrder) {
+      return res.status(404).json({ message: 'Order not found for update' });
+    }
+
+  }catch (err) {  
+    res.status(500).json({ message: err.message });
+  }
+}
+
+
+exports.deleteOrder = async (req, res) => { 
+  try {
+    const { id } = req.params;
+
+    const deletedOrder = await Order.findByIdAndDelete(id);
+
+    if (!deletedOrder) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    res.status(200).json({ message: 'Order deleted successfully' });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+
+                  //  Product API controller
+
+exports.postProduct = async (req, res) => {  
+  try {
+    const { productName, quantity } = req.body;
+
+    if (!productName || !quantity) {
+      return res.status(404).json({ message: 'Product Name & Quantity is required' });
+    }
+
+    const newProduct = new Product({ productName, quantity });
+    const savedProduct = await newProduct.save();
+
+    res.status(201).json({ message: 'Product added successfully', data: savedProduct });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+exports.getProducts = async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.status(200).json({ message: 'Products get successfully', data: products });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+exports.updateProduct = async (req, res) => {
+  const { id } = req.params;
+  const { productName, quantity } = req.body;
+
+  try {
+    const updatedProduct = await Product.findOneAndUpdate({ _id: id }, { productName, quantity }, { new: true, upsert: false });  
+      if (!updatedProduct) {
+        return res.status(404).json({ message: 'Product not found for update' });
+      }   
+
+    } catch (err) {   
+      res.status(500).json({ message: err.message });
+    }   
+} 
+
+exports.deleteProduct = async (req, res) => { 
+  try {
+    const { id } = req.params;
+
+    const deletedProduct = await Product.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.status(200).json({ message: 'Product deleted successfully' });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+

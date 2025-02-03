@@ -5,7 +5,7 @@ const Salesman = require("../models/Salesman");
 const fs = require('fs');
 const path = require('path');
 
-exports.postAttendance = async (req, res,filePath) => {
+exports.postAttendance = async (req, res,profileImgBase64) => {
      try {
        const {
                
@@ -37,11 +37,12 @@ exports.postAttendance = async (req, res,filePath) => {
           createdAt: { $gte: startOfDay, $lte: endOfDay },
         });
 
-        let base64Image = null;
-        if (filePath) {
-               base64Image = req.file.buffer.toString("base64");
-        }
+        // let base64Image = null;
+        // if (profileImgBase64) {
+        //        base64Image = req.file.buffer.toString("base64");
+        // }
 
+        console.log("first",profileImgBase64)
     
         if (existingAttendance) {
           return res.status(400).json({
@@ -51,7 +52,7 @@ exports.postAttendance = async (req, res,filePath) => {
         }
    
        const newAttendance = new Attendence({
-               profileImgUrl:base64Image,
+               profileImgUrl:profileImgBase64,
                salesmanId,
                attendenceStatus,
                latitude,
