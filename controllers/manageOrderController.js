@@ -8,6 +8,7 @@ exports.ganaretInvoice = async (req, res) => {
           customerAddress,
           companyName,
           companyAddress,
+          productName,
           quantity,
           date,
           gst,
@@ -21,8 +22,8 @@ exports.ganaretInvoice = async (req, res) => {
 
       try {  
 
-       if (!customerName || !companyName || !companyAddress || !quantity || !date ) {
-         return res.status(400).json({ message: "customerName,companyName,quantity,date fields are required" });
+       if (!customerName || !companyName || !companyAddress || !quantity || !date || !productName) {
+         return res.status(400).json({ message: "customerName,companyName,quantity,date,productName fields are required" });
        }
 
       const newinvoice = await Invoice.create({
@@ -30,6 +31,7 @@ exports.ganaretInvoice = async (req, res) => {
           customerAddress,
           companyName,
           companyAddress,
+          productName,
           quantity,
           date,
           gst,
@@ -108,6 +110,7 @@ exports.updateInvoice = async (req, res) => {
     customerAddress,
     companyName,
     companyAddress,
+    productName,
     quantity,
     date,
     gst,
@@ -125,6 +128,7 @@ exports.updateInvoice = async (req, res) => {
         customerAddress,
         companyName,
         companyAddress,
+        productName,
         quantity,
         date,
         gst,
@@ -179,3 +183,41 @@ exports.deleteInvoice = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 }
+
+
+
+
+
+                //  Order API controller
+
+
+exports.postOrder = async (req, res) => {
+
+  try {
+
+    const { productName,quantity } = req.body;
+
+    if (!productName || !quantity) {
+      return res.status(404).json({ message: 'Product Name & Quantity is required' });
+    }
+
+    const newOrder = new Order({productName,quantity});
+    const savedOrder = await newOrder.save();
+
+    res.status(201).json({ message: 'Order added successfully', data: savedOrder });
+
+  } catch (err) { 
+    res.status(500).json({ message: err.message });
+  }
+}
+
+exports.getOrders = async (req, res) => {
+
+  try {
+    const orders = await Order.find();
+    res.status(200).json({ message: 'Orders get successfully', data: orders });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+} 

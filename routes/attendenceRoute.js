@@ -12,23 +12,10 @@ const upload = multer({ storage: storage });
 
 
 
-router.post('/attendence', upload.single("profileImgUrl"), authenticate, async (req, res) => {
-     // const { file } = req;
-
-     if (!req.file) {
-         return res.status(400).json({ error: "No file uploaded" });
-     }     try {
-       
-       const filePath = await handleImageProcessing(req.file);
-   
-       postAttendance(req, res, filePath); 
-     } catch (error) {
-       res.status(500).send(error.message);
-     }
-   });
+router.post('/attendence', upload.single("profileImgUrl"), authenticate, postAttendance);
 
 
-   router.get('/attendence',authenticate, getAttendance);
+router.get('/attendence',authenticate, getAttendance);
 router.put('/attendence/:id',authenticate, updateAttendance);
 
 
