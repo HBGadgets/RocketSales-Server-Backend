@@ -97,7 +97,13 @@ exports.getLeaveRequest = async (req,res) => {
                   endOfDay = endDate ? new Date(endDate) : moment().endOf("day").toDate();
               }
           
-              let query = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
+              let query ;
+              if(status =="Reject" || status =="Approve"){
+                
+                 query = { updatedAt: { $gte: startOfDay, $lte: endOfDay } };
+              }else{
+                query = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
+              }
           
 
 
