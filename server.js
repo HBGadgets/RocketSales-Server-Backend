@@ -12,6 +12,11 @@ const attendenceRoutes = require('./routes/attendenceRoute');
 const leaveRequestRoutes = require('./routes/leaveRequestRoute');
 const expenceRoute = require('./routes/expenceRoute');
 const ManageOrderRoute = require('./routes/manageOrderRoute');
+const initializeSocket = require("./utils/socket.io");
+const setupChatbox = require("./controllers/chatBox");
+ 
+
+const http = require("http");
 
 const connectDB = require("./config/db");
 
@@ -29,6 +34,14 @@ const corsOptions = {
   // Connect to mangodb
   connectDB();
 
+  const server = http.createServer(app);
+
+
+  //  Initialize socket.io
+  const io = initializeSocket(server);
+
+//  pass in the server instance
+    setupChatbox(server);
 
   // Middleware
 app.use(cors(corsOptions));  
@@ -50,4 +63,4 @@ app.use('/api', ManageOrderRoute);
 
 
 // Start server
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

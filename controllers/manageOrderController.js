@@ -345,6 +345,12 @@ exports.postProduct = async (req, res) => {
   try {
     const { productName, quantity,companyId} = req.body;
 
+    const duplicateProduct = await ProductCollection.findOne({ productName });
+
+    if (duplicateProduct) {  
+      return res.status(400).json({ message: 'Product already exists' });
+    }
+
     if (!productName || !quantity ||!companyId) {
       return res.status(404).json({ message: 'Product Name & Quantity is required' });
     }

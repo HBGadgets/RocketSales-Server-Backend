@@ -215,6 +215,15 @@ exports.postExpenceType = async (req,res) => {
      try {
                const {expenceType,branchId,companyId} = req.body;
 
+               const findForDuplicate = await ExpenceType.findOne({expenceType,branchId,companyId});
+               
+               if(findForDuplicate){
+                    return res.status(400).json({
+                         success: false,
+                         message: 'Expence Type already exist',
+                         });
+               }
+
                if(!expenceType ||!branchId||!companyId){
 
                    return res.status (400).json({
