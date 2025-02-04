@@ -347,7 +347,7 @@ exports.deleteOrder = async (req, res) => {
 
 exports.postProduct = async (req, res) => {  
   try {
-    const { productName, quantity,companyId} = req.body;
+    const { productName, quantity,companyId,branchId,supervisorId} = req.body;
 
     const duplicateProduct = await ProductCollection.findOne({ productName });
 
@@ -359,7 +359,7 @@ exports.postProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product Name & Quantity is required' });
     }
 
-    const newProduct = new ProductCollection({ productName, quantity,companyId });
+    const newProduct = new ProductCollection({ productName, quantity,companyId,branchId,supervisorId });
     const savedProduct = await newProduct.save();
 
     res.status(201).json({ message: 'Product added successfully', data: savedProduct });
@@ -425,7 +425,7 @@ exports.updateProduct = async (req, res) => {
   const { productName, quantity,companyId } = req.body;
 
   try {
-    const updatedProduct = await ProductCollection.findOneAndUpdate({ _id: id }, { productName, quantity,companyId }, { new: true, upsert: false });  
+    const updatedProduct = await ProductCollection.findOneAndUpdate({ _id: id }, { productName, quantity,companyId,branchId,supervisorId }, { new: true, upsert: false });  
       if (!updatedProduct) {
         return res.status(404).json({ message: 'Product not found for update' });
       }   
