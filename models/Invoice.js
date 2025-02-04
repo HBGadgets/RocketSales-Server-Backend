@@ -17,6 +17,8 @@ const invoiceSchema = new mongoose.Schema({
   companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
   branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch' },
   supervisorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' },
+  salesmanId: { type: mongoose.Schema.Types.ObjectId, ref:'Salesman' },
+  
     },{
      timestamps: true
     });

@@ -22,7 +22,8 @@ exports.ganaretInvoice = async (req, res) => {
           totalAmount, 
           companyId,
           branchId,
-          supervisorId    } = req.body;
+          supervisorId,
+          salesmanId    } = req.body;
 
       try {  
 
@@ -45,7 +46,8 @@ exports.ganaretInvoice = async (req, res) => {
           totalAmount,
           companyId,
           branchId,
-          supervisorId 
+          supervisorId,
+          salesmanId
       });
     const savedInvoice = await newinvoice.save();
       res.status(201).json({
@@ -124,7 +126,8 @@ exports.updateInvoice = async (req, res) => {
     totalAmount,
     companyId,
     branchId,     
-    supervisorId,} = req.body; 
+    supervisorId,
+    salesmanId} = req.body; 
     
     try {
       
@@ -142,7 +145,8 @@ exports.updateInvoice = async (req, res) => {
         totalAmount,
         companyId,
         branchId,     
-        supervisorId, }, 
+        supervisorId,
+        salesmanId }, 
       { new: true, upsert: false } 
       );
 
