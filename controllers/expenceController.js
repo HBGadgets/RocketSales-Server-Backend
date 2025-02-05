@@ -166,7 +166,7 @@ exports.putExpence = async (req,res) => {
                   });
           }
 
-          return res.status(404).json({
+          return res.status(200).json({
                success: true,
                message: 'Expence Updated successfully',
                data:updatedExpence
@@ -254,7 +254,7 @@ exports.postExpenceType = async (req,res) => {
 
 exports.getExpenceType = async (req,res) => {     
 
-     const { role,id, companyId } = req.user;
+     const { role,id,branchId } = req.user;
      let expenceTypes;
 
      try {
@@ -270,17 +270,17 @@ exports.getExpenceType = async (req,res) => {
                .populate("branchId","branchName");
           } else if (role == 'branch') {
                expenceTypes = await ExpenceType.find({
-                    companyId: companyId,
+                    branchId: id,
                }).populate("companyId","companyName")
                .populate("branchId","branchName");
           } else if (role == 'supervisor') {
                expenceTypes = await ExpenceType.find({
-                    companyId: companyId,
+                    branchId: branchId,
                }).populate("companyId","companyName")
                .populate("branchId","branchName");
           } else if (role == 'salesman') {
                expenceTypes = await ExpenceType.find({
-                    companyId: companyId,
+                    branchId: branchId,
                }).populate("companyId","companyName")
                .populate("branchId","branchName");
           }
@@ -354,3 +354,4 @@ exports.deleteExpenceType = async (req,res) => {
              });
      }
 }
+
