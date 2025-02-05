@@ -400,18 +400,18 @@ exports.getForManualAttendance = async (req, res) => {
        })
    
    
-       if (todayAttendance.length === 0) {
-         return res.status(404).json({
-           success: false,
-           message: "No attendance found for today",
-         });
+       const presentSalesmanIds = todayAttendance?.map((att) => att.salesmanId.toString());
+
+   
+       let absentSalesmen
+       if (presentSalesmanIds && presentSalesmanIds.length > 0) {
+        
+          absentSalesmen = allSalesmen.filter(
+           (salesman) => !presentSalesmanIds?.includes(salesman._id.toString())
+         );
+       }else{
+           absentSalesmen = allSalesmen;
        }
-   
-       const presentSalesmanIds = todayAttendance.map((att) => att.salesmanId.toString());
-   
-       const absentSalesmen = allSalesmen.filter(
-         (salesman) => !presentSalesmanIds.includes(salesman._id.toString())
-       );
    
        if (absentSalesmen.length > 0) {
          return res.status(200).json({
@@ -435,3 +435,4 @@ exports.getForManualAttendance = async (req, res) => {
      }
    };
    
+
