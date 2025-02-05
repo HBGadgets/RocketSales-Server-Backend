@@ -422,7 +422,7 @@ exports.getProducts = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   const { id } = req.params;
-  const { productName, quantity,companyId } = req.body;
+  const { productName, quantity,companyId,branchId,supervisorId } = req.body;
 
   try {
     const updatedProduct = await ProductCollection.findOneAndUpdate({ _id: id }, { productName, quantity,companyId,branchId,supervisorId }, { new: true, upsert: false });  
