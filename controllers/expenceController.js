@@ -110,22 +110,24 @@ exports.getExpence = async (req,res)=>{
                     expences = await Expence.find({...query,
                     companyId: id,
                   }).populate("companyId","companyName")
-                                       .populate("branchId","branchName")
-                                       .populate("supervisorId","supervisorName")
-                                       .populate("salesmanId","salesmanName");
+                    .populate("branchId","branchName")
+                    .populate("supervisorId","supervisorName")
+                    .populate("salesmanId","salesmanName");
                 } else if (role == 'branch') {
                     expences = await Expence.find({
                          ...query,
                     branchId: id,
                   }).populate("companyId","companyName")
-                  .populate("branchId","branchName")
-                  .populate("supervisorId","supervisorName")
-                  .populate("salesmanId","salesmanName");
+                    .populate("branchId","branchName")
+                    .populate("supervisorId","supervisorName")
+                    .populate("salesmanId","salesmanName");
                 } else if (role == 'supervisor') {
                     expences = await Expence.find({
                     ...query,
                     supervisorId: id,
-                  });
+                  }).populate("companyId","companyName")
+                  .populate("branchId","branchName")
+                  .populate("salesmanId","salesmanName");
                 } else if (role == 'salesman') {
                     expences = await Expence.find({
                     ...query,
