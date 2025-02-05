@@ -5,12 +5,12 @@ const { decrypt, encrypt } = require('../utils/cryptoUtils');
 
 
 const branchSchema = new mongoose.Schema({
-     branchName: { type: String, required: true },
-     branchLocation: { type: String, required: true },
-     branchEmail: { type: String, sparse: true,},
-     branchPhone: { type: String, required: false }, 
+     branchName: { type: String, },
+     branchLocation: { type: String,},
+     branchEmail: { type: String,},
+     branchPhone: { type: String, }, 
      supervisorsIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' }], 
-     username: { type: String, required: true, unique: true,sparse: true, },
+     username: { type: String, required: true, unique: true, },
      password: { type: String, required: true },
      role: { type: Number, default: 0 }, 
      companyId:{ type: mongoose.Schema.Types.ObjectId, ref: 'Company' },

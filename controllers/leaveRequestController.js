@@ -54,109 +54,218 @@ exports.PostLeaveRequest = async (req, res) => {
      }
    };
 
-exports.getLeaveRequest = async (req,res) => {
+// exports.getLeaveRequest = async (req,res) => {
 
-     try {
-          let pendingLeaveRequest;
+//      try {
+//           let pendingLeaveRequest;
 
-          const { id } = req.user;
-          const { role } = req.user;          
-          const { status} = req.query;
+//           const { id } = req.user;
+//           const { role } = req.user;          
+//           const { status} = req.query;
 
-           const { startDate, endDate, filter } = req.query;
+//            const { startDate, endDate, filter } = req.query;
           
-              let startOfDay, endOfDay;
+//               let startOfDay, endOfDay;
           
-              switch (filter) {
-                case "today":
-                  startOfDay = moment().startOf("day").toDate();
-                  endOfDay = moment().endOf("day").toDate();
-                  break;
-                case "yesterday":
-                  startOfDay = moment().subtract(1, "days").startOf("day").toDate();
-                  endOfDay = moment().subtract(1, "days").endOf("day").toDate();
-                  break;
-                case "thisWeek":
-                  startOfDay = moment().startOf("week").toDate();
-                  endOfDay = moment().endOf("week").toDate();
-                  break;
-                case "lastWeek":
-                  startOfDay = moment().subtract(1, "weeks").startOf("week").toDate();
-                  endOfDay = moment().subtract(1, "weeks").endOf("week").toDate();
-                  break;
-                case "thisMonth":
-                  startOfDay = moment().startOf("month").toDate();
-                  endOfDay = moment().endOf("month").toDate();
-                  break;
-                case "preMonth":
-                  startOfDay = moment().subtract(1, "months").startOf("month").toDate();
-                  endOfDay = moment().subtract(1, "months").endOf("month").toDate();
-                  break;
-                default:
-                  startOfDay = startDate ? new Date(startDate) : moment().startOf("day").toDate();
-                  endOfDay = endDate ? new Date(endDate) : moment().endOf("day").toDate();
-              }
+//               switch (filter) {
+//                 case "today":
+//                   startOfDay = moment().startOf("day").toDate();
+//                   endOfDay = moment().endOf("day").toDate();
+//                   break;
+//                 case "yesterday":
+//                   startOfDay = moment().subtract(1, "days").startOf("day").toDate();
+//                   endOfDay = moment().subtract(1, "days").endOf("day").toDate();
+//                   break;
+//                 case "thisWeek":
+//                   startOfDay = moment().startOf("week").toDate();
+//                   endOfDay = moment().endOf("week").toDate();
+//                   break;
+//                 case "lastWeek":
+//                   startOfDay = moment().subtract(1, "weeks").startOf("week").toDate();
+//                   endOfDay = moment().subtract(1, "weeks").endOf("week").toDate();
+//                   break;
+//                 case "thisMonth":
+//                   startOfDay = moment().startOf("month").toDate();
+//                   endOfDay = moment().endOf("month").toDate();
+//                   break;
+//                 case "preMonth":
+//                   startOfDay = moment().subtract(1, "months").startOf("month").toDate();
+//                   endOfDay = moment().subtract(1, "months").endOf("month").toDate();
+//                   break;
+//                 default:
+//                   startOfDay = startDate ? new Date(startDate) : moment().startOf("day").toDate();
+//                   endOfDay = endDate ? new Date(endDate) : moment().endOf("day").toDate();
+//               }
           
-              let query ;
-              if(status =="Reject" || status =="Approve"){
+//               let query ;
+//               if(status =="Reject" || status =="Approve"){
                 
-                 query = { updatedAt: { $gte: startOfDay, $lte: endOfDay } };
-              }else{
-                query = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
-              }
+//                  query = { updatedAt: { $gte: startOfDay, $lte: endOfDay } };
+//               }else{
+//                 query = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
+//               }
           
 
 
  
-           if(role=='superadmin'){
-               pendingLeaveRequest = await LeaveRequest.find({...query,leaveRequestStatus:status || "Pending"})
-                              .populate("companyId","companyName")
-                              .populate("branchId","branchName")
-                              .populate("supervisorId","supervisorName")
-                              .populate("salesmanId","salesmanName salesmanPhone");
+//            if(role=='superadmin'){
+//                pendingLeaveRequest = await LeaveRequest.find({...query,leaveRequestStatus:status || "Pending"})
+//                               .populate("companyId","companyName")
+//                               .populate("branchId","branchName")
+//                               .populate("supervisorId","supervisorName")
+//                               .populate("salesmanId","salesmanName salesmanPhone");
           
-                             }else if(role =='company'){
-               pendingLeaveRequest = await LeaveRequest.find({...query, companyId: id,leaveRequestStatus:status || "Pending" })
-                              .populate("branchId","branchName")
-                              .populate("supervisorId","supervisorName")
-                              .populate("salesmanId","salesmanName salesmanPhone");
+//                              }else if(role =='company'){
+//                pendingLeaveRequest = await LeaveRequest.find({...query, companyId: id,leaveRequestStatus:status || "Pending" })
+//                               .populate("branchId","branchName")
+//                               .populate("supervisorId","supervisorName")
+//                               .populate("salesmanId","salesmanName salesmanPhone");
           
           
-                             }else if(role =='branch'){
-               pendingLeaveRequest = await LeaveRequest.find({...query, branchId: id,leaveRequestStatus:status || "Pending" })
-                              .populate("supervisorId","supervisorName")
-                              .populate("salesmanId","salesmanName salesmanPhone");
-                              ;
+//                              }else if(role =='branch'){
+//                pendingLeaveRequest = await LeaveRequest.find({...query, branchId: id,leaveRequestStatus:status || "Pending" })
+//                               .populate("supervisorId","supervisorName")
+//                               .populate("salesmanId","salesmanName salesmanPhone");
+//                               ;
                       
-                             }else if(role =='supervisor'){
-               pendingLeaveRequest = await LeaveRequest.find({...query, supervisorId: id,leaveRequestStatus:status || "Pending" })
-                              .populate("companyId","companyName")
-                              .populate("branchId","branchName")                    
-                              .populate("salesmanId","salesmanName salesmanPhone");
+//                              }else if(role =='supervisor'){
+//                pendingLeaveRequest = await LeaveRequest.find({...query, supervisorId: id,leaveRequestStatus:status || "Pending" })
+//                               .populate("companyId","companyName")
+//                               .populate("branchId","branchName")                    
+//                               .populate("salesmanId","salesmanName salesmanPhone");
           
                       
-                             }else if(role =='salesman'){
-               pendingLeaveRequest = await LeaveRequest.find({...query, salesmanId: id})
-                              .populate("companyId","companyName")
-                              .populate("branchId","branchName")
-                              .populate("supervisorId","supervisorName");
+//                              }else if(role =='salesman'){
+//                pendingLeaveRequest = await LeaveRequest.find({...query, salesmanId: id})
+//                               .populate("companyId","companyName")
+//                               .populate("branchId","branchName")
+//                               .populate("supervisorId","supervisorName");
                       
-     }
-     res.status(200).json({ 
-          success: true,
-          message: 'All Pending requset get successfully',
-          data: pendingLeaveRequest,
-     })
+//      }
+//      res.status(200).json({ 
+//           success: true,
+//           message: 'All Pending requset get successfully',
+//           data: pendingLeaveRequest,
+//      })
           
-     } catch (error) {
-          res.status(500).json({
-               success: false,
-               message: 'An error occurred while processing the leave request.',
-               error: error.message,
-          }); 
-     }
+//      } catch (error) {
+//           res.status(500).json({
+//                success: false,
+//                message: 'An error occurred while processing the leave request.',
+//                error: error.message,
+//           }); 
+//      }
      
-}
+// }
+
+exports.getLeaveRequest = async (req, res) => {
+  try {
+      let pendingLeaveRequest;
+
+      const { id } = req.user;
+      const { role } = req.user;          
+      const { status } = req.query;
+
+      const { startDate, endDate, filter } = req.query;
+
+      let startOfDay, endOfDay;
+
+      // Set the date range based on the filter or custom dates
+      if (filter) {
+          switch (filter) {
+              case "today":
+                  startOfDay = moment().startOf("day").toDate();
+                  endOfDay = moment().endOf("day").toDate();
+                  break;
+              case "yesterday":
+                  startOfDay = moment().subtract(1, "days").startOf("day").toDate();
+                  endOfDay = moment().subtract(1, "days").endOf("day").toDate();
+                  break;
+              case "thisWeek":
+                  startOfDay = moment().startOf("week").toDate();
+                  endOfDay = moment().endOf("week").toDate();
+                  break;
+              case "lastWeek":
+                  startOfDay = moment().subtract(1, "weeks").startOf("week").toDate();
+                  endOfDay = moment().subtract(1, "weeks").endOf("week").toDate();
+                  break;
+              case "thisMonth":
+                  startOfDay = moment().startOf("month").toDate();
+                  endOfDay = moment().endOf("month").toDate();
+                  break;
+              case "preMonth":
+                  startOfDay = moment().subtract(1, "months").startOf("month").toDate();
+                  endOfDay = moment().subtract(1, "months").endOf("month").toDate();
+                  break;
+              default:
+                  startOfDay = null;
+                  endOfDay = null;
+          }
+      } 
+
+      // If custom dates are provided, use them
+      if (startDate && endDate) {
+          startOfDay = new Date(startDate);
+          endOfDay = new Date(endDate);
+      }
+
+      let query = { leaveRequestStatus: status || "Pending" };
+
+      // Apply date filtering if date filters are provided
+      if (startOfDay && endOfDay) {
+          if (status === "Reject" || status === "Approve") {
+              query.updatedAt = { $gte: startOfDay, $lte: endOfDay };
+          } else {
+              query.createdAt = { $gte: startOfDay, $lte: endOfDay };
+          }
+      }
+
+      // Fetch data based on role
+      if (role === 'superadmin') {
+          pendingLeaveRequest = await LeaveRequest.find(query)
+              .populate("companyId", "companyName")
+              .populate("branchId", "branchName")
+              .populate("supervisorId", "supervisorName")
+              .populate("salesmanId", "salesmanName salesmanPhone");
+
+      } else if (role === 'company') {
+          pendingLeaveRequest = await LeaveRequest.find({ ...query, companyId: id })
+              .populate("branchId", "branchName")
+              .populate("supervisorId", "supervisorName")
+              .populate("salesmanId", "salesmanName salesmanPhone");
+
+      } else if (role === 'branch') {
+          pendingLeaveRequest = await LeaveRequest.find({ ...query, branchId: id })
+              .populate("supervisorId", "supervisorName")
+              .populate("salesmanId", "salesmanName salesmanPhone");
+
+      } else if (role === 'supervisor') {
+          pendingLeaveRequest = await LeaveRequest.find({ ...query, supervisorId: id })
+              .populate("companyId", "companyName")
+              .populate("branchId", "branchName")
+              .populate("salesmanId", "salesmanName salesmanPhone");
+
+      } else if (role === 'salesman') {
+          pendingLeaveRequest = await LeaveRequest.find({ ...query, salesmanId: id })
+              .populate("companyId", "companyName")
+              .populate("branchId", "branchName")
+              .populate("supervisorId", "supervisorName");
+      }
+
+      res.status(200).json({ 
+          success: true,
+          message: 'All Pending requests fetched successfully',
+          data: pendingLeaveRequest,
+      });
+
+  } catch (error) {
+      res.status(500).json({
+          success: false,
+          message: 'An error occurred while processing the leave request.',
+          error: error.message,
+      }); 
+  }
+};
 
 
 exports.putLeaveRequestStatus = async (req,res) =>{

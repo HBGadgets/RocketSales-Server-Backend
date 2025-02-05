@@ -4,11 +4,11 @@ const { decrypt, encrypt } = require('../utils/cryptoUtils');
 
 
 const companySchema = new mongoose.Schema({
-  companyName: { type: String, required: true },  
+  companyName: { type: String, },  
   companyEmail: { type: String },   
-  companyPhone: { type: String, required: false},               
-  ownerName: { type: String, required: true },     
-  ownerEmail: { type: String,required: true },                    
+  companyPhone: { type: String, },               
+  ownerName: { type: String,  },     
+  ownerEmail: { type: String,},                    
   gstNo: { type: String },         
   panNo: { type: String },                         
   businessType: { type: String },                  
