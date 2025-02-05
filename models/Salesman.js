@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 const { decrypt, encrypt } = require('../utils/cryptoUtils');
 
 const salesmanSchema = new mongoose.Schema({
-  salesmanName: { type: String, required: true },
+  salesmanName: { type: String,},
   profileImage: { type: String, },
-  salesmanEmail: { type: String,sparse: true, },
-  salesmanPhone: { type: String, required: true },
+  salesmanEmail: { type: String, },
+  salesmanPhone: { type: String,},
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: Number, default: 0 }, 
