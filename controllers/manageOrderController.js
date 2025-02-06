@@ -422,10 +422,10 @@ exports.getProducts = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   const { id } = req.params;
-  const { productName, quantity,companyId,branchId,supervisorId } = req.body;
+  const { productName, quantity,companyId,branchId } = req.body;
 
   try {
-    const updatedProduct = await ProductCollection.findOneAndUpdate({ _id: id }, { productName, quantity,companyId,branchId,supervisorId }, { new: true, upsert: false });  
+    const updatedProduct = await ProductCollection.findOneAndUpdate({ _id: id }, { productName, quantity,companyId,branchId }, { new: true, upsert: false });  
       if (!updatedProduct) {
         return res.status(404).json({ message: 'Product not found for update' });
       }   
