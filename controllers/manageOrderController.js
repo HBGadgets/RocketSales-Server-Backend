@@ -12,8 +12,7 @@ exports.ganaretInvoice = async (req, res) => {
           customerAddress,
           companyName,
           companyAddress,
-          productName,
-          quantity,
+          products,
           date,
           gst,
           HSNcode,
@@ -27,7 +26,7 @@ exports.ganaretInvoice = async (req, res) => {
 
       try {  
 
-       if (!customerName || !companyName || !companyAddress || !quantity || !date || !productName) {
+       if (!customerName || !companyName || !companyAddress || !date ) {
          return res.status(400).json({ message: "customerName,companyName,quantity,date,productName fields are required" });
        }
 
@@ -36,8 +35,7 @@ exports.ganaretInvoice = async (req, res) => {
           customerAddress,
           companyName,
           companyAddress,
-          productName,
-          quantity,
+          products,
           date,
           gst,
           HSNcode,
@@ -203,13 +201,13 @@ exports.postOrder = async (req, res) => {
 
   try {
 
-    const { productName,quantity,shopName,shopOwnerName,phoneNo,deliveryDate,shopAddress,companyId,branchId,supervisorId,salesmanId  } = req.body;
+    const { products,shopName,shopOwnerName,phoneNo,deliveryDate,shopAddress,companyId,branchId,supervisorId,salesmanId  } = req.body;
 
-    if (!productName || !quantity) {
-      return res.status(404).json({ message: 'Product Name & Quantity is required' });
+    if (!products) {
+      return res.status(404).json({ message: 'Products is required' });
     }
 
-    const newOrder = new Order({productName,quantity,shopName,shopOwnerName,phoneNo,deliveryDate,shopAddress,companyId,branchId,supervisorId,salesmanId});
+    const newOrder = new Order({products,shopName,shopOwnerName,phoneNo,deliveryDate,shopAddress,companyId,branchId,supervisorId,salesmanId});
     const savedOrder = await newOrder.save();
 
     res.status(201).json({ message: 'Order added successfully', data: savedOrder });
@@ -349,7 +347,7 @@ exports.postProduct = async (req, res) => {
   try {
     const { productName, quantity,companyId,branchId,supervisorId} = req.body;
 
-    const duplicateProduct = await ProductCollection.findOne({ productName });
+    const duplicateProduct = await ProductCollection.findOne({ productName,companyId });
 
     if (duplicateProduct) {  
       return res.status(400).json({ message: 'Product already exists' });
@@ -368,6 +366,63 @@ exports.postProduct = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 }
+
+
+// exports.postProduct = async (req, res) => {
+//   try {
+//     const products = req.body.products;
+
+//     if (!Array.isArray(products) || products.length === 0) {
+//       return res.status(400).json({ message: 'Invalid input, expected an array of products' });
+//     }
+
+//     const newProducts = [];
+//     const duplicateProducts = [];
+//     const seenProducts = new Set(); // To track duplicates in the incoming array
+
+//     for (const product of products) {
+//       const { productName, quantity, companyId, branchId, supervisorId } = product;
+
+//       if (!productName || !quantity || !companyId) {
+//         duplicateProducts.push({ productName, companyId, reason: "Missing required fields" });
+//         continue; // Skip this product
+//       }
+
+//       const uniqueKey = `${productName}-${companyId}`;
+
+//       // Check for duplicates within the request array
+//       if (seenProducts.has(uniqueKey)) {
+//         duplicateProducts.push({ productName, companyId, reason: "Duplicate in request" });
+//         continue;
+//       }
+//       seenProducts.add(uniqueKey);
+
+//       // Check if the product exists in the database
+//       const duplicateProduct = await ProductCollection.findOne({ productName, companyId });
+
+//       if (duplicateProduct) {
+//         duplicateProducts.push({ productName, companyId, reason: "Already exists in database" });
+//       } else {
+//         newProducts.push({ productName, quantity, companyId, branchId, supervisorId });
+//       }
+//     }
+
+//     let savedProducts = [];
+//     if (newProducts.length > 0) {
+//       savedProducts = await ProductCollection.insertMany(newProducts);
+//     }
+
+//     return res.status(201).json({
+//       message: "Products processed",
+//       addedProducts: savedProducts,
+//       duplicates: duplicateProducts.length > 0 ? duplicateProducts : "No duplicates found",
+//     });
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// };
+
+
 
 
 exports.getProducts = async (req, res) => {

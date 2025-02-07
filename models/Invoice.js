@@ -7,8 +7,14 @@ const invoiceSchema = new mongoose.Schema({
   companyName:{type: String,},
   companyAddress:  { type: String,},
   date:{type: String},// required: true 
-  productName:{type: String},
-  quantity:{type: String},
+  products: [
+    {
+      productName: { type: String, required: true },
+      quantity: { type: Number, required: true },
+      price: { type: Number, required: true }
+
+    }
+  ],
   gst:{type: String},
   HSNcode:{type: String},
   discount:{type: String},
