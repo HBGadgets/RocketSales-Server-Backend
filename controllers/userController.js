@@ -52,7 +52,7 @@ const loginUser = async (req, res) => {
       user = await Supervisor.findOne({ username });
     }
     if (!user) {
-      user = await Salesman.findOne({ username });
+      user = await Salesman.findOne({ username }).populate("supervisorId","supervisorName");
     }
     
     if (!user) {
@@ -70,7 +70,7 @@ const loginUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, username: user.username, role: user.role,companyId:user.companyId,branchId:user.branchId,supervisorId:user.supervisorId,salesmanId:user.salesmanId },
+      { id: user._id, username: user.username, role: user.role,companyId:user.companyId,branchId:user.branchId,supervisorId:user.supervisorId,salesmanId:user.salesmanId, SupervisorName:user.supervisorName },
       process.env.JWT_SECRET,
       { expiresIn: '10y' }
     );
