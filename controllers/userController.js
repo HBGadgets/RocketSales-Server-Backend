@@ -46,13 +46,13 @@ const loginUser = async (req, res) => {
       user = await Company.findOne({ username });
     }
     if (!user) {
-      user = await Branch.findOne({ username });
+      user = await Branch.findOne({ username }).populate("companyId","username");;
     }
     if (!user) {
-      user = await Supervisor.findOne({ username });
+      user = await Supervisor.findOne({ username }).populate("branchId","username");;
     }
     if (!user) {
-      user = await Salesman.findOne({ username }).populate("supervisorId","supervisorName");
+      user = await Salesman.findOne({ username }).populate("supervisorId","username");
     }
     
     if (!user) {
@@ -70,7 +70,7 @@ const loginUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, username: user.username, role: user.role,companyId:user.companyId,branchId:user.branchId,supervisorId:user.supervisorId,salesmanId:user.salesmanId, SupervisorName:user.supervisorName },
+      { id: user._id, username: user.username, role: user.role,companyId:user.companyId,branchId:user.branchId,supervisorId:user.supervisorId,salesmanId:user.salesmanId, chatusername:user.username },
       process.env.JWT_SECRET,
       { expiresIn: '10y' }
     );
