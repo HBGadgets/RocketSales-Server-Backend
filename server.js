@@ -14,6 +14,7 @@ const expenceRoute = require('./routes/expenceRoute');
 const ManageOrderRoute = require('./routes/manageOrderRoute');
 const initializeSocket = require("./utils/socket.io");
 const setupChatbox = require("./controllers/chatBox");
+const ChatBoxUserRoutes = require('./routes/ChatBoxUserRoute');
  
 
 const http = require("http");
@@ -58,6 +59,7 @@ app.use('/api', attendenceRoutes);
 app.use('/api', leaveRequestRoutes);
 app.use('/api', expenceRoute);
 app.use('/api', ManageOrderRoute);
+app.use('/api', ChatBoxUserRoutes);
 
 // app.use('/api/attendance', attendanceRoutes);
 
