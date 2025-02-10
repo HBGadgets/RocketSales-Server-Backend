@@ -2,7 +2,6 @@ const ChatMessage = require("../models/ChatMessage");
 const initializeSocket = require("../utils/socket.io");
 const {encryptMessage} = require("../utils/messageCryptoUtils");
 
-const secretKey = process.env.SECRET_KEY || "12345678901234567890098765432123"
 
 let io;
 
@@ -30,7 +29,7 @@ const setupChatbox = (server) => {
                     return;
                 }
 
-            const encryptedMessage = encryptMessage(data.message, secretKey);
+            const encryptedMessage = encryptMessage(data.message);
 
                 try {
                     const saveMessage = new ChatMessage({
