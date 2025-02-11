@@ -381,7 +381,7 @@ exports.postProduct = async (req, res) => {
     const seenProducts = new Set(); // To track duplicates in the incoming array
 
     for (const product of products) {
-      const { productName, quantity, companyId, branchId, supervisorId } = product;
+      const { productName, quantity, companyId, branchId, supervisorId,perPicePrice } = product;
 
       if (!productName || !quantity || !companyId) {
         duplicateProducts.push({ productName, companyId, reason: "Missing required fields" });
@@ -403,7 +403,7 @@ exports.postProduct = async (req, res) => {
       if (duplicateProduct) {
         duplicateProducts.push({ productName, companyId, reason: "Already exists in database" });
       } else {
-        newProducts.push({ productName, quantity, companyId, branchId, supervisorId });
+        newProducts.push({ productName, quantity, companyId, branchId, supervisorId,perPicePrice });
       }
     }
 
