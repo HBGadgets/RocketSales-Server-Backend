@@ -67,8 +67,45 @@ exports.getInvoice = async (req, res) => {
 
     let invoices; 
 
+        const { startDate, endDate, filter } = req.query;
+    
+        let startOfDay, endOfDay;
+    
+        switch (filter) {
+          case "today":
+            startOfDay = moment().startOf("day").toDate();
+            endOfDay = moment().endOf("day").toDate();
+            break;
+          case "yesterday":
+            startOfDay = moment().subtract(1, "days").startOf("day").toDate();
+            endOfDay = moment().subtract(1, "days").endOf("day").toDate();
+            break;
+          case "thisWeek":
+            startOfDay = moment().startOf("week").toDate();
+            endOfDay = moment().endOf("week").toDate();
+            break;
+          case "lastWeek":
+            startOfDay = moment().subtract(1, "weeks").startOf("week").toDate();
+            endOfDay = moment().subtract(1, "weeks").endOf("week").toDate();
+            break;
+          case "thisMonth":
+            startOfDay = moment().startOf("month").toDate();
+            endOfDay = moment().endOf("month").toDate();
+            break;
+          case "preMonth":
+            startOfDay = moment().subtract(1, "months").startOf("month").toDate();
+            endOfDay = moment().subtract(1, "months").endOf("month").toDate();
+            break;
+          default:
+            startOfDay = startDate ? new Date(startDate) : moment().startOf("day").toDate();
+            endOfDay = endDate ? new Date(endDate) : moment().endOf("day").toDate();
+        }
+    
+        let query = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
+
+
     if (role === "superadmin") {
-      invoices = await Invoice.find()
+      invoices = await Invoice.find(query)
         .populate("companyId", "companyName")
         .populate("branchId", "branchName")
         .populate("supervisorId", "supervisorName")
@@ -80,21 +117,21 @@ exports.getInvoice = async (req, res) => {
         .populate("supervisorId", "supervisorName")
         // .populate("salesmanId", "salesmanName");
     } else if (role === "branch") {
-      invoices = await Invoice.find({ branchId: id })
+      invoices = await Invoice.find({...query, branchId: id })
         .populate("companyId", "companyName")
         .populate("branchId", "branchName")
         .populate("supervisorId", "supervisorName")
         // .populate("salesmanId", "salesmanName");
     } else if (role === "supervisor") {
-      invoices = await Invoice.find({ supervisorId: id });
+      invoices = await Invoice.find({...query, supervisorId: id });
      }
-      // else if (role === "salesman") {
-    //   todayAttendance = await Invoice.find({ salesmanId: id })
-    //     .populate("companyId", "companyName")
-    //     .populate("branchId", "branchName")
-    //     .populate("supervisorId", "supervisorName")
-    //     .populate("salesmanId", "salesmanName");
-    // }
+      else if (role === "salesman") {
+      todayAttendance = await Invoice.find({...query, salesmanId: id })
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName")
+        .populate("salesmanId", "salesmanName");
+    }
 
     res.status(200).json({
        success: true, 
