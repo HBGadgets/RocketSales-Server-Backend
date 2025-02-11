@@ -343,84 +343,84 @@ exports.deleteOrder = async (req, res) => {
 
                   //  Product API controller
 
-exports.postProduct = async (req, res) => {  
-  try {
-    const { productName, quantity,companyId,branchId,supervisorId} = req.body;
-
-    const duplicateProduct = await ProductCollection.findOne({ productName,companyId });
-
-    if (duplicateProduct) {  
-      return res.status(400).json({ message: 'Product already exists' });
-    }
-
-    if (!productName || !quantity ||!companyId) {
-      return res.status(404).json({ message: 'Product Name & Quantity is required' });
-    }
-
-    const newProduct = new ProductCollection({ productName, quantity,companyId,branchId,supervisorId });
-    const savedProduct = await newProduct.save();
-
-    res.status(201).json({ message: 'Product added successfully', data: savedProduct });
-
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-}
-
-
-// exports.postProduct = async (req, res) => {
+// exports.postProduct = async (req, res) => {  
 //   try {
-//     const products = req.body.products;
+//     const { productName, quantity,companyId,branchId,supervisorId} = req.body;
 
-//     if (!Array.isArray(products) || products.length === 0) {
-//       return res.status(400).json({ message: 'Invalid input, expected an array of products' });
+//     const duplicateProduct = await ProductCollection.findOne({ productName,companyId });
+
+//     if (duplicateProduct) {  
+//       return res.status(400).json({ message: 'Product already exists' });
 //     }
 
-//     const newProducts = [];
-//     const duplicateProducts = [];
-//     const seenProducts = new Set(); // To track duplicates in the incoming array
-
-//     for (const product of products) {
-//       const { productName, quantity, companyId, branchId, supervisorId } = product;
-
-//       if (!productName || !quantity || !companyId) {
-//         duplicateProducts.push({ productName, companyId, reason: "Missing required fields" });
-//         continue; // Skip this product
-//       }
-
-//       const uniqueKey = `${productName}-${companyId}`;
-
-//       // Check for duplicates within the request array
-//       if (seenProducts.has(uniqueKey)) {
-//         duplicateProducts.push({ productName, companyId, reason: "Duplicate in request" });
-//         continue;
-//       }
-//       seenProducts.add(uniqueKey);
-
-//       // Check if the product exists in the database
-//       const duplicateProduct = await ProductCollection.findOne({ productName, companyId });
-
-//       if (duplicateProduct) {
-//         duplicateProducts.push({ productName, companyId, reason: "Already exists in database" });
-//       } else {
-//         newProducts.push({ productName, quantity, companyId, branchId, supervisorId });
-//       }
+//     if (!productName || !quantity ||!companyId) {
+//       return res.status(404).json({ message: 'Product Name & Quantity is required' });
 //     }
 
-//     let savedProducts = [];
-//     if (newProducts.length > 0) {
-//       savedProducts = await ProductCollection.insertMany(newProducts);
-//     }
+//     const newProduct = new ProductCollection({ productName, quantity,companyId,branchId,supervisorId });
+//     const savedProduct = await newProduct.save();
 
-//     return res.status(201).json({
-//       message: "Products processed",
-//       addedProducts: savedProducts,
-//       duplicates: duplicateProducts.length > 0 ? duplicateProducts : "No duplicates found",
-//     });
+//     res.status(201).json({ message: 'Product added successfully', data: savedProduct });
+
 //   } catch (err) {
 //     res.status(500).json({ message: err.message });
 //   }
-// };
+// }
+
+
+exports.postProduct = async (req, res) => {
+  try {
+    const products = req.body.products;
+
+    if (!Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({ message: 'Invalid input, expected an array of products' });
+    }
+
+    const newProducts = [];
+    const duplicateProducts = [];
+    const seenProducts = new Set(); // To track duplicates in the incoming array
+
+    for (const product of products) {
+      const { productName, quantity, companyId, branchId, supervisorId } = product;
+
+      if (!productName || !quantity || !companyId) {
+        duplicateProducts.push({ productName, companyId, reason: "Missing required fields" });
+        continue; // Skip this product
+      }
+
+      const uniqueKey = `${productName}-${companyId}`;
+
+      // Check for duplicates within the request array
+      if (seenProducts.has(uniqueKey)) {
+        duplicateProducts.push({ productName, companyId, reason: "Duplicate in request" });
+        continue;
+      }
+      seenProducts.add(uniqueKey);
+
+      // Check if the product exists in the database
+      const duplicateProduct = await ProductCollection.findOne({ productName, companyId });
+
+      if (duplicateProduct) {
+        duplicateProducts.push({ productName, companyId, reason: "Already exists in database" });
+      } else {
+        newProducts.push({ productName, quantity, companyId, branchId, supervisorId });
+      }
+    }
+
+    let savedProducts = [];
+    if (newProducts.length > 0) {
+      savedProducts = await ProductCollection.insertMany(newProducts);
+    }
+
+    return res.status(201).json({
+      message: "Products processed",
+      addedProducts: savedProducts,
+      duplicates: duplicateProducts.length > 0 ? duplicateProducts : "No duplicates found",
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 
 
