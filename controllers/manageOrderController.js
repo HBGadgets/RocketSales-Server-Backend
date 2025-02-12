@@ -342,22 +342,56 @@ exports.getOrders = async (req, res) => {
 } 
 
 
+// exports.updateOrder = async (req, res) => {
+//   const { id } = req.params;
+//   const { productName,quantity,shopName,shopOwnerName,phoneNo,deliveryDate,shopAddress,companyId,branchId,supervisorId,salesmanId } = req.body;
+
+//   try {
+//     const updatedOrder = await Order.findOneAndUpdate({ _id: id }, { productName,quantity,shopName,shopOwnerName,phoneNo,deliveryDate,shopAddress,companyId,branchId,supervisorId,salesmanId}, { new: true, upsert: false });
+
+//     if (!updatedOrder) {
+//       return res.status(404).json({ message: 'Order not found for update' });
+//     }
+//     res.status(200).json({ message: 'Order updated successfully', data: updatedOrder });
+
+//   }catch (err) {  
+//     res.status(500).json({ message: err.message });
+//   }
+// }
+
 exports.updateOrder = async (req, res) => {
   const { id } = req.params;
-  const { productName,quantity,shopName,shopOwnerName,phoneNo,deliveryDate,shopAddress,companyId,branchId,supervisorId,salesmanId } = req.body;
+  const { products, shopName, shopOwnerName, phoneNo, deliveryDate, shopAddress, companyId, branchId, supervisorId, salesmanId } = req.body;
 
   try {
-    const updatedOrder = await Order.findOneAndUpdate({ _id: id }, { productName,quantity,shopName,shopOwnerName,phoneNo,deliveryDate,shopAddress,companyId,branchId,supervisorId,salesmanId}, { new: true, upsert: false });
+    const updatedOrder = await Order.findOneAndUpdate(
+      { _id: id },
+      { 
+        products, 
+        shopName, 
+        shopOwnerName, 
+        phoneNo, 
+        deliveryDate, 
+        shopAddress, 
+        companyId, 
+        branchId, 
+        supervisorId, 
+        salesmanId
+      },
+      { new: true, upsert: false }
+    );
 
     if (!updatedOrder) {
       return res.status(404).json({ message: 'Order not found for update' });
     }
+
     res.status(200).json({ message: 'Order updated successfully', data: updatedOrder });
 
-  }catch (err) {  
+  } catch (err) {  
     res.status(500).json({ message: err.message });
   }
-}
+};
+
 
 
 exports.deleteOrder = async (req, res) => { 
