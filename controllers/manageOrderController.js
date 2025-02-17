@@ -26,7 +26,7 @@ exports.ganaretInvoice = async (req, res) => {
 
       try {  
 
-       if (!customerName || !companyName || !companyAddress || !date ) {
+       if (!customerName || !companyName || !companyAddress ) {
          return res.status(400).json({ message: "customerName,companyName,quantity,date,productName fields are required" });
        }
 
@@ -299,34 +299,35 @@ exports.getOrders = async (req, res) => {
     if (role === "superadmin") {
       orders = await Order.find(query)
         .populate("companyId", "companyName")
-        .populate("branchId", "branchName")
+        .populate("branchId", "branchName branchLocation")
         .populate("supervisorId", "supervisorName")
         .populate("salesmanId", "salesmanName");
     } else if (role === "company") {
       orders = await Order.find({ ...query, companyId: id })
         .populate("companyId", "companyName")
-        .populate("branchId", "branchName")
+        .populate("branchId", "branchName branchLocation")
         .populate("supervisorId", "supervisorName")
         .populate("salesmanId", "salesmanName");
     } else if (role === "branch") {
       orders = await Order.find({ ...query, branchId: id })
         .populate("companyId", "companyName")
-        .populate("branchId", "branchName")
+        .populate("branchId", "branchName branchLocation")
         .populate("supervisorId", "supervisorName")
         .populate("salesmanId", "salesmanName");
     } else if (role === "supervisor") {
       orders = await Order.find({ ...query, supervisorId: id })
         .populate("companyId", "companyName")
-        .populate("branchId", "branchName")
+        .populate("branchId", "branchName branchLocation")
         .populate("supervisorId", "supervisorName")
         .populate("salesmanId", "salesmanName");
     } else if (role === "salesman") {
       orders = await Order.find({ ...query, salesmanId: id })
         .populate("companyId", "companyName")
-        .populate("branchId", "branchName")
+        .populate("branchId", "branchName branchLocation")
         .populate("supervisorId", "supervisorName")
         .populate("salesmanId", "salesmanName");
     }
+    console.log("kkkkkkkkkkkksssssssssss",orders)
 
     res.status(200).json({
       success: true,
