@@ -327,7 +327,6 @@ exports.getOrders = async (req, res) => {
         .populate("supervisorId", "supervisorName")
         .populate("salesmanId", "salesmanName");
     }
-    console.log("kkkkkkkkkkkksssssssssss",orders)
 
     res.status(200).json({
       success: true,
