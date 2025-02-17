@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.get('/chatboxuser',authenticate,  async (req, res) => { 
      
-         const { role } = req.user;
+         const { role,id } = req.user;
      
              let UserData;
          try {
@@ -20,13 +20,13 @@ router.get('/chatboxuser',authenticate,  async (req, res) => {
                        UserData = await Company.find()
                        
                      } else if (role == "company") {
-                         UserData = await Branch.find()
+                         UserData = await Branch.find({companyId:id})
                          
                      } else if (role == "branch") {
-                         UserData = await Supervisor.find()
+                         UserData = await Supervisor.find({branchId:id})
                          
                      } else if (role == "supervisor") {
-                         UserData = await Salesman.find()
+                         UserData = await Salesman.find({supervisorId:id})
                          
                      }
                      if (!UserData) {
