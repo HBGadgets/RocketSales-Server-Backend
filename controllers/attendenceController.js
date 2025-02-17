@@ -391,7 +391,8 @@ exports.getForManualAttendance = async (req, res) => {
        const tomorrow = new Date(today);
        tomorrow.setDate(tomorrow.getDate() + 1); 
    
-       const allSalesmen = await Salesman.find().populate("companyId", "companyName")
+       const allSalesmen = await Salesman.find().select("-profileImage")
+                                                .populate("companyId", "companyName")
                                                 .populate("branchId", "branchName")
                                                 .populate("supervisorId", "supervisorName");
                                             
