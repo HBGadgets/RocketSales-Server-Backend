@@ -12,19 +12,7 @@ const upload = multer({ storage: storage });
 
 
 
-router.post('/attendence', upload.single("profileImgUrl"), authenticate, async (req, res) => {
-  try {
-      let profileImgBase64 = null;
-
-      if (req.file) {
-          profileImgBase64 = req.file.buffer.toString("base64");
-      }
-
-      await postAttendance(req, res, profileImgBase64);
-  } catch (error) {
-      res.status(500).json({ message: "Internal Server Error", error: error.message });
-  }
-});
+router.post('/attendence', upload.single("profileImgUrl"), authenticate,  postAttendance);
 
 
 router.get('/attendence',authenticate, getAttendance);
