@@ -4,8 +4,9 @@ const moment = require("moment");
 const Salesman = require("../models/Salesman");
 const fs = require('fs');
 const path = require('path');
+const { handleImageProcessing } = require("../utils/imageProcessor");
 
-exports.postAttendance = async (req, res,profileImgBase64) => {
+exports.postAttendance = async (req, res) => {
      try {
        const {
                
@@ -42,6 +43,14 @@ exports.postAttendance = async (req, res,profileImgBase64) => {
         //        base64Image = req.file.buffer.toString("base64");
         // }
 
+        let base64Image = null;
+
+        if (req.file) {
+          // Resize image before converting to Base64
+          const resizedImageBuffer = await handleImageProcessing(req.file);
+          base64Image = `${resizedImageBuffer.toString("base64")}`;
+        }
+
     
         if (existingAttendance) {
           return res.status(400).json({
@@ -51,7 +60,7 @@ exports.postAttendance = async (req, res,profileImgBase64) => {
         }
    
        const newAttendance = new Attendence({
-               profileImgUrl:profileImgBase64,
+               profileImgUrl:base64Image,
                salesmanId,
                attendenceStatus,
                latitude,
