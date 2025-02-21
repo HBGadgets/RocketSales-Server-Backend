@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { db1 }= require('../config/db'); 
 
 const attendenceSchema = new mongoose.Schema({
 
@@ -16,5 +17,5 @@ const attendenceSchema = new mongoose.Schema({
     }, 
     });
 
-   module.exports = mongoose.model('Attendence', attendenceSchema);
+   module.exports = db1.model('Attendence', attendenceSchema);
    

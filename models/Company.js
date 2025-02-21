@@ -1,6 +1,7 @@
 // //models/Company.js
 const mongoose = require('mongoose');
 const { decrypt, encrypt } = require('../utils/cryptoUtils');
+const { db1 }= require('../config/db'); 
 
 
 const companySchema = new mongoose.Schema({
@@ -38,4 +39,4 @@ companySchema.methods.comparePassword = async function(password) {
 
 
 
-module.exports = mongoose.model('Company', companySchema);
+module.exports = db1.model('Company', companySchema);

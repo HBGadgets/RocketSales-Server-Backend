@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { decrypt, encrypt } = require('../utils/cryptoUtils');
-
+const { db1 }= require('../config/db'); 
 
 
 
@@ -34,4 +34,4 @@ branchSchema.methods.comparePassword = async function(password) {
 };
 
 
-   module.exports = mongoose.model('Branch', branchSchema);
+   module.exports = db1.model('Branch', branchSchema);

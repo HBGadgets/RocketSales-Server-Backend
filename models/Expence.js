@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { db1 }= require('../config/db'); 
 
 const expenceSchema = new mongoose.Schema({
 
@@ -17,5 +18,5 @@ const expenceSchema = new mongoose.Schema({
     }, 
     });
 
-   module.exports = mongoose.model('Expence', expenceSchema);
+   module.exports = db1.model('Expence', expenceSchema);
    

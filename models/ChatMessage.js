@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { db1 }= require('../config/db'); 
 
 const MessageSchema = new mongoose.Schema({
   Message: { type: String, },
@@ -7,4 +8,4 @@ const MessageSchema = new mongoose.Schema({
   room: {type:String },
 }, { timestamps: true });
 
-module.exports = mongoose.model('Message', MessageSchema);
+module.exports = db1.model('Message', MessageSchema);

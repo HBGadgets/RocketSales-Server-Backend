@@ -15,6 +15,7 @@ const ManageOrderRoute = require('./routes/manageOrderRoute');
 const initializeSocket = require("./utils/socket.io");
 const setupChatbox = require("./controllers/chatBox");
 const ChatBoxUserRoutes = require('./routes/ChatBoxUserRoute');
+const dbConnections = require('./config/db');
  
 
 const http = require("http");
@@ -33,7 +34,7 @@ const corsOptions = {
 };
 
   // Connect to mangodb
-  connectDB();
+  // connectDB();
 
   const server = http.createServer(app);
 
