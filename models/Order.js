@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { db1 }= require('../config/db'); 
 
 const orderSchema = new mongoose.Schema({
 
@@ -24,5 +25,5 @@ const orderSchema = new mongoose.Schema({
      timestamps: true
     });
 
-   module.exports = mongoose.model('Order', orderSchema);
+   module.exports = db1.model('Order', orderSchema);
    

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { db1 }= require('../config/db'); 
 
 const invoiceSchema = new mongoose.Schema({
 
@@ -29,5 +30,5 @@ const invoiceSchema = new mongoose.Schema({
      timestamps: true
     });
 
-   module.exports = mongoose.model('Invoice', invoiceSchema);
+   module.exports = db1.model('Invoice', invoiceSchema);
    

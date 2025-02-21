@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { db1 }= require('../config/db'); 
 
 const taskSchema = new mongoose.Schema({
   taskName: { type: String, },
@@ -15,4 +16,4 @@ const taskSchema = new mongoose.Schema({
   complitionDate:{type: String, },
 }, { timestamps: true });
 
-module.exports = mongoose.model('Task', taskSchema);
+module.exports = db1.model('Task', taskSchema);

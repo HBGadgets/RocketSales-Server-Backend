@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { decrypt, encrypt } = require('../utils/cryptoUtils');
+const { db1 }= require('../config/db'); 
+
 
 const salesmanSchema = new mongoose.Schema({
   salesmanName: { type: String,},
@@ -32,4 +34,4 @@ salesmanSchema.methods.comparePassword = async function(password) {
 };
 
 
-module.exports = mongoose.model('Salesman', salesmanSchema);
+module.exports = db1.model('Salesman', salesmanSchema);

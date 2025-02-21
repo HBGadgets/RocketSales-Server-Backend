@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { db1 }= require('../config/db'); 
 
 const LeaveRequestSchema = new mongoose.Schema({
 
@@ -16,5 +17,5 @@ const LeaveRequestSchema = new mongoose.Schema({
      timestamps: true
     });
 
-   module.exports = mongoose.model('LeaveRequest', LeaveRequestSchema);
+   module.exports = db1.model('LeaveRequest', LeaveRequestSchema);
    

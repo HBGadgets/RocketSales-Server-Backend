@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { encrypt, decrypt } = require('../utils/cryptoUtils');
+const { db1 }= require('../config/db'); 
+
 
 const superAdminSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
@@ -24,5 +26,5 @@ superAdminSchema.methods.comparePassword = async function(password) {
 };
 
 
-
-module.exports = mongoose.model('Superadmin', superAdminSchema);
+module.exports = db1.model('Superadmin', superAdminSchema);
+// module.exports = mongoose.model('Superadmin', superAdminSchema);

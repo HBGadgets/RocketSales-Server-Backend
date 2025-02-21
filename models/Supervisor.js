@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { decrypt, encrypt } = require('../utils/cryptoUtils');
+const { db1 }= require('../config/db'); 
 
 const supervisorSchema = new mongoose.Schema({
   supervisorName: { type: String, },
@@ -31,4 +32,4 @@ supervisorSchema.methods.comparePassword = async function(password) {
 
 
 
-module.exports = mongoose.model('Supervisor',supervisorSchema );
+module.exports = db1.model('Supervisor',supervisorSchema );

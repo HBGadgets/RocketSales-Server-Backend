@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { db1 }= require('../config/db'); 
 
 const productSchema = new mongoose.Schema({
 
@@ -14,5 +15,5 @@ const productSchema = new mongoose.Schema({
      timestamps: true
     });
 
-module.exports = mongoose.model('Product', productSchema);
+module.exports = db1.model('Product', productSchema);
    

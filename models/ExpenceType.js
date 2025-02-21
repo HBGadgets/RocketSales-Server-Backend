@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { db1 }= require('../config/db'); 
 
 const expenceTypeSchema = new mongoose.Schema({
 
@@ -10,5 +11,5 @@ const expenceTypeSchema = new mongoose.Schema({
      timestamps: true
     });
 
-   module.exports = mongoose.model('ExpenceType', expenceTypeSchema);
+   module.exports = db1.model('ExpenceType', expenceTypeSchema);
    
