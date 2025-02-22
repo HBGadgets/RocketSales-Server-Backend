@@ -3,6 +3,16 @@ const { db2 }= require('../config/db');
 
 
 const liveDataSchema = new mongoose.Schema({
+  username:{
+    type:String,
+    required:true
+  },
+  batteryLevel:{
+    type:String,
+  },
+  mobileNetwork:{
+    type:String,
+  },
   latitude: {
     type: Number,
     required: true,

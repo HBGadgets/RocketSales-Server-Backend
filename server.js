@@ -12,11 +12,18 @@ const attendenceRoutes = require('./routes/attendenceRoute');
 const leaveRequestRoutes = require('./routes/leaveRequestRoute');
 const expenceRoute = require('./routes/expenceRoute');
 const ManageOrderRoute = require('./routes/manageOrderRoute');
-const initializeSocket = require("./utils/socket.io");
+const {initializeSocket} = require("./utils/socket.io");
 const setupChatbox = require("./controllers/chatBox");
+const setupLocationTracking = require("./liveTracking/salesmanLiveData");
 const ChatBoxUserRoutes = require('./routes/ChatBoxUserRoute');
 const dbConnections = require('./config/db');
+const { sendDataToAdmins } = require('./liveTracking/dataSendToDashBoard');
  
+
+setInterval(async () => {
+  sendDataToAdmins();
+}, 5000);
+
 
 const http = require("http");
 
@@ -40,10 +47,11 @@ const corsOptions = {
 
 
   //  Initialize socket.io
-  const io = initializeSocket(server);
+  initializeSocket(server);
 
 //  pass in the server instance
-    setupChatbox(server);
+setupChatbox();
+setupLocationTracking();
 
   // Middleware
 app.use(cors(corsOptions));  

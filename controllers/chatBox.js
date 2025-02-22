@@ -1,16 +1,15 @@
 const ChatMessage = require("../models/ChatMessage");
-const initializeSocket = require("../utils/socket.io");
+// const initializeSocket = require("../utils/socket.io");
+const { getSocketInstance } = require("../utils/socket.io"); 
 const {encryptMessage} = require("../utils/messageCryptoUtils");
 
 
-let io;
+// let io;
 
 const setupChatbox = (server) => {
-    if (!io) {
-        io = initializeSocket(server);
-
+        const io = getSocketInstance(); 
         io.on("connection", (socket) => {
-            // console.log(`User Connected: ${socket.id}`);
+            // console.log(`User Connected pavan tech: ${socket.id}`);
 
             // Handle joining room
             socket.on("joinRoom", ({ room, username }) => {
@@ -49,10 +48,9 @@ const setupChatbox = (server) => {
 
           
             socket.on("disconnect", () => {
-                console.log(`User Disconnected: ${socket.id}`);
+                console.log(`User Disconnected pavan: ${socket.id}`);
             });
         });
-    }
 };
 
 module.exports = setupChatbox;
