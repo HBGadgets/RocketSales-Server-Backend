@@ -23,7 +23,7 @@ const dbConnections = {
 const connectDB = async () => {
   try {
     if (!dbConnections.db1) {
-      dbConnections.db1 = mongoose.createConnection(process.env.MONGO_URI);
+      dbConnections.db1 = mongoose.createConnection(process.env.MONGO_URI_1);
       dbConnections.db1.on('connected', () => console.log('Connected to Database 1'));
       dbConnections.db1.on('error', (err) => console.error('Database 1 connection error:', err));
     }

@@ -25,7 +25,7 @@ const sendDataToAdmins = async () => {
         
 
 
-        console.log("📤 Sent live location data to admins.");
+        // console.log("📤 Sent live location data to admins.");
     } catch (error) {
         console.error("❌ Error sending live data:", error);
     }
