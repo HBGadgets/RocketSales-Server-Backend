@@ -4,7 +4,10 @@ const LiveData = require("../models/LiveData");
 const getLiveSalesmanData = async () => {
      try {
        const [salesmen, liveData] = await Promise.all([
-         Salesman.find().lean(),
+         Salesman.find()
+         .populate("companyId", "companyName")
+         .populate("branchId", "branchName")
+         .populate("supervisorId", "supervisorName").lean(),
          LiveData.find().sort({ timestamp: -1 }).lean()
        ]);
    
