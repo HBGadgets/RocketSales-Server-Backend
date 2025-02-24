@@ -452,7 +452,7 @@ exports.postProduct = async (req, res) => {
     const seenProducts = new Set(); // To track duplicates in the incoming array
 
     for (const product of products) {
-      const { productName, quantity, companyId, branchId, supervisorId,perPicePrice } = product;
+      const { productName,hsnCode, quantity, companyId, branchId, supervisorId,perPicePrice } = product;
 
       if (!productName || !quantity || !companyId) {
         duplicateProducts.push({ productName, companyId, reason: "Missing required fields" });
@@ -474,7 +474,7 @@ exports.postProduct = async (req, res) => {
       if (duplicateProduct) {
         duplicateProducts.push({ productName, companyId, reason: "Already exists in database" });
       } else {
-        newProducts.push({ productName, quantity, companyId, branchId, supervisorId,perPicePrice });
+        newProducts.push({ productName, quantity,hsnCode, companyId, branchId, supervisorId,perPicePrice });
       }
     }
 
@@ -548,10 +548,10 @@ exports.getProducts = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   const { id } = req.params;
-  const { productName, quantity,companyId,branchId } = req.body;
+  const { productName,hsnCode, quantity,companyId,branchId } = req.body;
 
   try {
-    const updatedProduct = await ProductCollection.findOneAndUpdate({ _id: id }, { productName, quantity,companyId,branchId }, { new: true, upsert: false });  
+    const updatedProduct = await ProductCollection.findOneAndUpdate({ _id: id }, { productName, hsnCode,quantity,companyId,branchId }, { new: true, upsert: false });  
       if (!updatedProduct) {
         return res.status(404).json({ message: 'Product not found for update' });
       }   
