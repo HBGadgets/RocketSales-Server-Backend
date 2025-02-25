@@ -20,10 +20,6 @@ const dbConnections = require('./config/db');
 const { sendDataToAdmins } = require('./liveTracking/dataSendToDashBoard');
  
 
-setInterval(async () => {
-  sendDataToAdmins();
-}, 5000);
-
 
 const http = require("http");
 
@@ -52,6 +48,7 @@ const corsOptions = {
 //  chat box & get live Data of salesman function
 setupChatbox();
 setupLocationTracking();
+sendDataToAdmins();
 
   // Middleware
 app.use(cors(corsOptions));  
