@@ -100,6 +100,10 @@ const setupLocationTracking = (server) => {
                             username: username,
                             latitude: data.latitude,
                             longitude: data.longitude,
+                            batteryLevel:data.batteryLevel,
+                            mobileNetwork:data.mobileNetwork,
+                            speed:data.speed,
+                            distance:data.distance,
                             timestamp: new Date(),
                         };
         

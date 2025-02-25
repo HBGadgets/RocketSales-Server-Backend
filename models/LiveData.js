@@ -13,6 +13,12 @@ const liveDataSchema = new mongoose.Schema({
   mobileNetwork:{
     type:String,
   },
+  distance:{
+    type:String,
+  },
+  speed:{
+    type:String,
+  },
   latitude: {
     type: Number,
     required: true,
