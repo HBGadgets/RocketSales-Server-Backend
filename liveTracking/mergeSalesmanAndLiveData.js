@@ -5,6 +5,7 @@ const getLiveSalesmanData = async () => {
      try {
        const [salesmen, liveData] = await Promise.all([
          Salesman.find()
+         .select("-profileImage") 
          .populate("companyId", "companyName")
          .populate("branchId", "branchName")
          .populate("supervisorId", "supervisorName").lean(),
