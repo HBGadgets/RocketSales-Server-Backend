@@ -18,7 +18,9 @@ const setupLocationTracking = require("./liveTracking/salesmanLiveData");
 const ChatBoxUserRoutes = require('./routes/ChatBoxUserRoute');
 const dbConnections = require('./config/db');
 const { sendDataToAdmins } = require('./liveTracking/dataSendToDashBoard');
- 
+const trackSalesmanLive = require("./liveTracking/singleSalesManTraking");
+
+
 
 
 const http = require("http");
@@ -49,6 +51,8 @@ const corsOptions = {
 setupChatbox();
 setupLocationTracking();
 sendDataToAdmins();
+trackSalesmanLive();
+
 
   // Middleware
 app.use(cors(corsOptions));  

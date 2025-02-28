@@ -35,7 +35,7 @@ const sendDataToAdmins = () => {
         console.log("✅ New user connected for Live Data:", socket.id);
 
         socket.on("authenticate", async (token) => {
-            console.log("jjjjjjjjjjjjjjj",token)
+            // console.log("jjjjjjjjjjjjjjj",token)
             if (!token) {
                 console.log("❌ No token provided.");
                 return;
