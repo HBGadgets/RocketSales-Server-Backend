@@ -12,6 +12,8 @@ const attendenceRoutes = require('./routes/attendenceRoute');
 const leaveRequestRoutes = require('./routes/leaveRequestRoute');
 const expenceRoute = require('./routes/expenceRoute');
 const ManageOrderRoute = require('./routes/manageOrderRoute');
+const ReportRoutes = require('./routes/reportRoute');
+
 const {initializeSocket} = require("./utils/socket.io");
 const setupChatbox = require("./controllers/chatBox");
 const setupLocationTracking = require("./liveTracking/salesmanLiveData");
@@ -19,6 +21,7 @@ const ChatBoxUserRoutes = require('./routes/ChatBoxUserRoute');
 const dbConnections = require('./config/db');
 const { sendDataToAdmins } = require('./liveTracking/dataSendToDashBoard');
 const trackSalesmanLive = require("./liveTracking/singleSalesManTraking");
+const trackSalesmanHistory = require("./liveTracking/simulaterfile");
 
 
 
@@ -52,6 +55,7 @@ setupChatbox();
 setupLocationTracking();
 sendDataToAdmins();
 trackSalesmanLive();
+trackSalesmanHistory();
 
 
   // Middleware
@@ -70,6 +74,7 @@ app.use('/api', leaveRequestRoutes);
 app.use('/api', expenceRoute);
 app.use('/api', ManageOrderRoute);
 app.use('/api', ChatBoxUserRoutes);
+app.use('/api', ReportRoutes);
 
 // app.use('/api/attendance', attendanceRoutes);
 
