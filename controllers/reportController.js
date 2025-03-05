@@ -149,93 +149,80 @@ exports.getDistance = async (req, res) => {
 
 exports.getDistanceDayWise = async (req, res) => {
     try {
-        const { id, period, startDate, endDate } = req.query;
+        const { usernames, period, startDate, endDate } = req.query;
+        if (!usernames) return res.status(400).json({ message: "Missing required parameters: username" });
 
-        if (!id || !period) {
-            return res.status(400).json({ message: "Missing required parameters" });
-        }
+        const ArrUsernames = usernames.split(",").map(u => u.trim()); // Split and trim usernames
 
-        const salesman = await Salesman.findById(new mongoose.Types.ObjectId(id));
-
-        if (!salesman) {
-            return res.status(404).json({ message: "Salesman not found" });
-        }
-
-        let start, end;
         const now = moment().endOf("day");
+        let start, end;
 
-        switch (period.toLowerCase()) {
-            case "today":
-                start = moment().startOf("day");
-                end = now;
-                break;
-            case "yesterday":
-                start = moment().subtract(1, "day").startOf("day");
-                end = moment().subtract(1, "day").endOf("day");
-                break;
-            case "thisweek":
-                start = moment().startOf("week");
-                end = now;
-                break;
-            case "prevweek":
-                start = moment().subtract(1, "week").startOf("week");
-                end = moment().subtract(1, "week").endOf("week");
-                break;
-            case "thismonth":
-                start = moment().startOf("month");
-                end = now;
-                break;
-            case "lastmonth":
-                start = moment().subtract(1, "month").startOf("month");
-                end = moment().subtract(1, "month").endOf("month");
-                break;
-            case "custom":
-                if (!startDate || !endDate) {
-                    return res.status(400).json({ message: "Start and end dates are required for custom period" });
+        if (startDate && endDate) {
+            start = moment(startDate).startOf("day");
+            end = moment(endDate).endOf("day");
+        } else {
+            const periods = {
+                today: [moment().startOf("day"), now],
+                yesterday: [moment().subtract(1, "day").startOf("day"), moment().subtract(1, "day").endOf("day")],
+                thisweek: [moment().startOf("week"), now],
+                prevweek: [moment().subtract(1, "week").startOf("week"), moment().subtract(1, "week").endOf("week")],
+                thismonth: [moment().startOf("month"), now],
+                lastmonth: [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
+            };
+            [start, end] = periods[period?.toLowerCase()] || [];
+            if (!start || !end) return res.status(400).json({ message: "Invalid period type or missing dates" });
+        }
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.write(`{"period": "${period}", "salesmanDistances": {`);
+
+        let firstUser = true;
+        for (const user of ArrUsernames) {
+            if (!firstUser) res.write(",");
+            res.write(`"${user}": {`);
+            firstUser = false;
+
+            let currentDate = moment(start);
+            let firstDay = true;
+
+            while (currentDate.isSameOrBefore(end, "day")) {
+                if (!firstDay) res.write(",");
+                firstDay = false;
+
+                const dayStart = currentDate.clone().startOf("day").toDate();
+                const dayEnd = currentDate.clone().endOf("day").toDate();
+
+                let totalDistance = 0, startPoint = null, endPoint = null;
+                const cursor = LiveData.find({
+                    username: user,
+                    timestamp: { $gte: dayStart, $lte: dayEnd }
+                }).sort({ timestamp: 1 }).select('-_id latitude longitude distance').lean().cursor();
+
+                let firstRecord = true;
+                for await (const { latitude, longitude, distance } of cursor) {
+                    totalDistance += Number(distance || 0);
+                    if (firstRecord) {
+                        startPoint = { lat: latitude, long: longitude };
+                        firstRecord = false;
+                    }
+                    endPoint = { lat: latitude, long: longitude };
                 }
-                start = moment(startDate);
-                end = moment(endDate);
-                break;
-            default:
-                return res.status(400).json({ message: "Invalid period type" });
-        }
 
-        let dailyDistances = {};
-        let currentDate = moment(start);
+                res.write(`"${currentDate.format("YYYY-MM-DD")}": {`);
+                res.write(`"totalDistance": "${(totalDistance / 1000).toFixed(2)} km",`);
+                res.write(`"startPoint": ${JSON.stringify(startPoint)},`);
+                res.write(`"endPoint": ${JSON.stringify(endPoint)}}`);
 
-        while (currentDate.isSameOrBefore(end, "day")) {
-            const dayStart = currentDate.clone().startOf("day");
-            const dayEnd = currentDate.clone().endOf("day");
-
-            const liveData = await LiveData.find({
-                username: salesman.username,
-                timestamp: { $gte: dayStart.toDate(), $lte: dayEnd.toDate() },
-            }).sort({ timestamp: 1 });
-
-            if (liveData.length > 0) {
-                const totalDistance = liveData.reduce((acc, curr) => acc + Number(curr.distance || 0), 0) / 1000;
-                dailyDistances[dayStart.format("YYYY-MM-DD")] = {
-                    totalDistance: totalDistance.toFixed(2) + " km",
-                    startPoint: { lat: liveData[0].latitude, long: liveData[0].longitude },
-                    endPoint: { lat: liveData[liveData.length - 1].latitude, long: liveData[liveData.length - 1].longitude }
-                };
-            } else {
-                dailyDistances[dayStart.format("YYYY-MM-DD")] = {
-                    totalDistance: "0 km",
-                    startPoint: null,
-                    endPoint: null
-                };
+                currentDate.add(1, "day");
             }
-
-            currentDate.add(1, "day");
+            res.write("}");
         }
 
-        return res.json({ period, dailyDistances });
-
+        res.write("}}}\n");
+        res.end();
     } catch (error) {
         console.error("❌ Error calculating distance:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: "Internal server error" });
     }
 };
-
 

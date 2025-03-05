@@ -28,10 +28,10 @@ const trackSalesmanHistory = () => {
     const io = getSocketInstance();
 
     io.on("connection", (socket) => {
-        console.log("✅ New user connected for history tracking:", socket.id);
+     //    console.log("✅ New user connected for history tracking:", socket.id);
 
         socket.on("requestSalesmanHistory", async (username) => {
-            console.log(`✅ History tracking requested for: ${username}`);
+          //   console.log(`✅ History tracking requested for: ${username}`);
 
             const trackingHistory = await getSalesmanHistoryTracking(username);
 
