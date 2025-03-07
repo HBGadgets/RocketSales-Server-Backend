@@ -11,6 +11,7 @@ const attendenceSchema = new mongoose.Schema({
   companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
   branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch' },
   supervisorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' }, 
+  checkOutTime: { type: Date },
   createdAt: {
       type: Date,
       default: Date.now,
