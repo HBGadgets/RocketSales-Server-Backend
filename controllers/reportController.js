@@ -2,7 +2,7 @@ const { default: mongoose } = require("mongoose");
 const LiveData = require("../models/LiveData");
 const Salesman = require("../models/Salesman");
 const moment = require("moment");
-
+const Task = require("../models/Task");
 
 
 // exports.getDistance = async (req, res) => { 
@@ -225,4 +225,64 @@ exports.getDistanceDayWise = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+
+
+
+exports.getTaskReport = async (req, res) => {
+    try {
+      const { status, ids, period, startDate, endDate } = req.query;
+  
+   
+      if (!ids) {
+        return res.status(400).json({ message: "At least one ID is required" });
+      }
+  
+    
+      let start, end;
+      if (startDate && endDate) {
+        start = moment(startDate).startOf("day");
+        end = moment(endDate).endOf("day");
+      } else if (period) {
+        const periods = {
+          today: [moment().startOf("day"), moment().endOf("day")],
+          yesterday: [moment().subtract(1, "day").startOf("day"), moment().subtract(1, "day").endOf("day")],
+          thisweek: [moment().startOf("week"), moment().endOf("day")],
+          prevweek: [moment().subtract(1, "week").startOf("week"), moment().subtract(1, "week").endOf("week")],
+          thismonth: [moment().startOf("month"), moment().endOf("day")],
+          lastmonth: [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
+        };
+        [start, end] = periods[period.toLowerCase()] || [];
+        if (!start || !end) {
+          return res.status(400).json({ message: "Invalid period type or missing dates for the report" });
+        }
+      }
+  
+      const objectIds = ids.split(",").map((id) => new mongoose.Types.ObjectId(id.trim()));
+  
+      let taskQuery = { assignedTo: { $in: objectIds } };
+  
+      if (status) {
+        taskQuery.status = status;
+      }
+  
+      if (start && end) {
+        taskQuery.createdAt = { $gte: start.toDate(), $lte: end.toDate() };
+      }
+  
+      const tasks = await Task.find(taskQuery)
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName")
+        .populate("assignedTo", "salesmanName");
+  
+      // Return only task data.
+      res.status(200).json({ tasks });
+    } catch (err) {
+      console.error("Error in getTaskReport:", err);
+      res.status(500).json({ message: err.message });
+    }
+  };
+  
+  
 

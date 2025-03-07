@@ -11,6 +11,7 @@ const salesmanSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: Number, default: 0 }, 
+  isLoggedIn: { type: Boolean, default: false }, 
   companyId:{ type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
   branchId:{ type: mongoose.Schema.Types.ObjectId, ref: 'Branch' },
   supervisorId:{ type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' },

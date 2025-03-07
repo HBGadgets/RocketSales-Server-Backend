@@ -7,6 +7,7 @@ const router = express.Router();
 router.post('/register', userController.registerUser);
 // Login route
 router.post('/login', userController.loginUser);
+router.post('/logout', userController.logoutUser);
 // Profile route - Apply authentication middleware
 router.get('/profile', authenticate, userController.getUserProfile);
 
