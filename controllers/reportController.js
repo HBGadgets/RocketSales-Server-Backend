@@ -333,7 +333,7 @@ exports.getTaskReport = async (req, res) => {
       }
   
       if (start && end) {
-        taskQuery.createdAt = { $gte: start.toDate(), $lte: end.toDate() };
+        taskQuery.updatedAt = { $gte: start.toDate(), $lte: end.toDate() };
       }
   
       const tasks = await Task.find(taskQuery)
