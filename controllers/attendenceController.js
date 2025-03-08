@@ -444,5 +444,51 @@ exports.getForManualAttendance = async (req, res) => {
        });
      }
    };
+  
    
 
+//   checkInTime controller
+
+exports.updateCheckOutTime = async (req, res) => {
+  try {
+    const { checkOutTime } = req.body;
+    const { id } = req.params;
+
+    if (!checkOutTime) {
+      return res.status(400).json({
+        success: false,
+        message: "Check-out time is required.",
+      });
+    }
+
+    const startOfDay = moment().startOf("day").toDate();
+    const endOfDay = moment().endOf("day").toDate();
+    
+    const attendance = await Attendence.findOneAndUpdate(
+      {
+        salesmanId: id,
+        createdAt: { $gte: startOfDay, $lte: endOfDay },
+      },
+      { $set: { checkOutTime } },
+      { new: true, upsert: false }
+    );
+
+    if (!attendance) {
+      return res.status(404).json({
+        success: false,
+        message: "No attendance record found for today to update checkout time.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Check-out time updated successfully.",
+      data: attendance,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

@@ -204,7 +204,7 @@ exports.updateInvoice = async (req, res) => {
   
   
   
-  }
+}
 
 exports.deleteInvoice = async (req, res) => {
 
