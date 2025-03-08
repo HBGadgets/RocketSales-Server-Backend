@@ -12,8 +12,8 @@ exports.postAttendance = async (req, res) => {
                
                salesmanId, 
                attendenceStatus,
-               latitude,
-               longitude,
+               startLat,
+               startLong,
                companyId,
                branchId,
                supervisorId } = req.body;
@@ -63,8 +63,8 @@ exports.postAttendance = async (req, res) => {
                profileImgUrl:base64Image,
                salesmanId,
                attendenceStatus,
-               latitude,
-               longitude,
+               startLat,
+               startLong,
                companyId,
                branchId,
                supervisorId 
@@ -451,7 +451,7 @@ exports.getForManualAttendance = async (req, res) => {
 
 exports.updateCheckOutTime = async (req, res) => {
   try {
-    const { checkOutTime } = req.body;
+    const { checkOutTime,endLat,endLong } = req.body;
     const { id } = req.params;
 
     if (!checkOutTime) {
@@ -469,7 +469,7 @@ exports.updateCheckOutTime = async (req, res) => {
         salesmanId: id,
         createdAt: { $gte: startOfDay, $lte: endOfDay },
       },
-      { $set: { checkOutTime } },
+      { $set: { checkOutTime,endLat,endLong } },
       { new: true, upsert: false }
     );
 
