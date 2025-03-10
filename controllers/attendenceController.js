@@ -83,7 +83,7 @@ exports.postAttendance = async (req, res) => {
          message: error.message,
        });
      }
-   };
+};
 
 
 // exports.getAttendance = async (req, res) => {
@@ -389,7 +389,7 @@ exports.updateAttendance = async (req, res) => {
          message: error.message,
        });
      }
-   };
+};
 
  
    
@@ -443,11 +443,11 @@ exports.getForManualAttendance = async (req, res) => {
          error: error.message,
        });
      }
-   };
+};
   
    
 
-//   checkInTime controller
+//   checkOutTime & endlatlong updation controller
 
 exports.updateCheckOutTime = async (req, res) => {
   try {

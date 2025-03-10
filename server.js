@@ -13,6 +13,7 @@ const leaveRequestRoutes = require('./routes/leaveRequestRoute');
 const expenceRoute = require('./routes/expenceRoute');
 const ManageOrderRoute = require('./routes/manageOrderRoute');
 const ReportRoutes = require('./routes/reportRoute');
+const SetOverSpeedRoutes = require('./routes/overspeedRoute');
 
 const {initializeSocket} = require("./utils/socket.io");
 const setupChatbox = require("./controllers/chatBox");
@@ -75,6 +76,7 @@ app.use('/api', expenceRoute);
 app.use('/api', ManageOrderRoute);
 app.use('/api', ChatBoxUserRoutes);
 app.use('/api', ReportRoutes);
+app.use('/api', SetOverSpeedRoutes);
 
 // app.use('/api/attendance', attendanceRoutes);
 
