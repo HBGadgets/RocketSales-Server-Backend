@@ -76,6 +76,7 @@ const sendDataToAdmins = () => {
                 socket.emit("liveSalesmanData", filteredData);
             };
 
+            sendFilteredData();
             // Send data every 10 seconds
             const intervalId = setInterval(sendFilteredData, 10000);
 

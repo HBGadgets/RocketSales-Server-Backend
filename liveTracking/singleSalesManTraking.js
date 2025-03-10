@@ -38,6 +38,8 @@ const trackSalesmanLive = () => {
               const trackingData = await getSingleSalesmanTracking(username);
               socket.emit("salesmanTrackingData", trackingData);
           };
+
+          sendLiveTrackingData();
       
           // Send data every 10 seconds
           const intervalId = setInterval(sendLiveTrackingData, 10000);
