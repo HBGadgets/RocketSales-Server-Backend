@@ -52,7 +52,8 @@ const sendDataToAdmins = () => {
             console.log("✅ Authenticated User:", user);
 
             const sendFilteredData = async () => {
-                const liveData = await getLiveSalesmanData();
+                // const liveData = await getLiveSalesmanData();
+                const liveData = getCachedLiveData();
 
                 if (!liveData || liveData.length === 0) {
                     console.log("⚠️ No live data available.");
