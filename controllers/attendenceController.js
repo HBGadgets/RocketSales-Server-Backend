@@ -391,61 +391,82 @@ exports.updateAttendance = async (req, res) => {
      }
 };
 
- 
-   
-exports.getForManualAttendance = async (req, res) => {
-     try {
-       const today = new Date();
-       today.setHours(0, 0, 0, 0); 
-       const tomorrow = new Date(today);
-       tomorrow.setDate(tomorrow.getDate() + 1); 
-   
-       const allSalesmen = await Salesman.find().select("-profileImage")
-                                                .populate("companyId", "companyName")
-                                                .populate("branchId", "branchName")
-                                                .populate("supervisorId", "supervisorName");
-                                            
-       const todayAttendance = await Attendence.find({
-         createdAt: { $gte: today, $lt: tomorrow },
-       })
-   
-   
-       const presentSalesmanIds = todayAttendance?.map((att) => att.salesmanId.toString());
-
-   
-       let absentSalesmen
-       if (presentSalesmanIds && presentSalesmanIds.length > 0) {
-        
-          absentSalesmen = allSalesmen.filter(
-           (salesman) => !presentSalesmanIds?.includes(salesman._id.toString())
-         );
-       }else{
-           absentSalesmen = allSalesmen;
-       }
-   
-       if (absentSalesmen.length > 0) {
-         return res.status(200).json({
-           success: true,
-           message: "Salesmen who did not attend today",
-           absentSalesmen,
-         });
-       } else {
-         return res.status(200).json({
-           success: true,
-           message: "All salesmen attended today",
-         });
-       }
-     } catch (error) {
-       console.error(error);
-       res.status(500).json({
-         success: false,
-         message: "An error occurred while fetching attendance",
-         error: error.message,
-       });
-     }
-};
   
-   
+exports.getForManualAttendance = async (req, res) => {
+  try {
+    const { role, id } = req.user;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    let allSalesmen;
+
+    if (role === "superadmin") {
+      allSalesmen = await Salesman.find().select("-profileImage")
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName");
+    } else if (role === "company") {
+      allSalesmen = await Salesman.find({ companyId: id }).select("-profileImage")
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName");
+    } else if (role === "branch") {
+      allSalesmen = await Salesman.find({ branchId: id }).select("-profileImage")
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName");
+    } else if (role === "supervisor") {
+      allSalesmen = await Salesman.find({ supervisorId: id }).select("-profileImage")
+        .populate("companyId", "companyName")
+        .populate("branchId", "branchName")
+        .populate("supervisorId", "supervisorName");
+    } else {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized role",
+      });
+    }
+
+    const todayAttendance = await Attendence.find({
+      createdAt: { $gte: today, $lt: tomorrow },
+    });
+
+    const presentSalesmanIds = todayAttendance?.map((att) => att.salesmanId.toString());
+
+    let absentSalesmen;
+    if (presentSalesmanIds && presentSalesmanIds.length > 0) {
+      absentSalesmen = allSalesmen.filter(
+        (salesman) => !presentSalesmanIds?.includes(salesman._id.toString())
+      );
+    } else {
+      absentSalesmen = allSalesmen;
+    }
+
+    if (absentSalesmen.length > 0) {
+      return res.status(200).json({
+        success: true,
+        message: "Salesmen who did not attend today",
+        absentSalesmen,
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        message: "All salesmen attended today",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching attendance",
+      error: error.message,
+    });
+  }
+};
+ 
 
 //   checkOutTime & endlatlong updation controller
 
