@@ -1,5 +1,5 @@
 const { getSocketInstance } = require("../utils/socket.io"); 
-const  {getLiveSalesmanData}  = require("./mergeSalesmanAndLiveData");
+const  { getCachedLiveData}  = require("./mergeSalesmanAndLiveData");
 const jwt = require("jsonwebtoken");
 
 
