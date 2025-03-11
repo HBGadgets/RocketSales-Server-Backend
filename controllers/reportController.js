@@ -211,72 +211,72 @@ exports.getDistance = async (req, res) => {
 //     }
 // };
 console.log("")
-exports.getDistanceDayWise = async (req, res) => {
-    try {
-        const { usernames, period, startDate, endDate } = req.query;
-        if (!usernames) return res.status(400).json({ message: "Missing required parameters: username" });
+// exports.getDistanceDayWise = async (req, res) => {
+//     try {
+//         const { usernames, period, startDate, endDate } = req.query;
+//         if (!usernames) return res.status(400).json({ message: "Missing required parameters: username" });
 
-        const ArrUsernames = usernames.split(",").map(u => u.trim());
+//         const ArrUsernames = usernames.split(",").map(u => u.trim());
 
-        const now = moment().endOf("day");
-        let start, end;
+//         const now = moment().endOf("day");
+//         let start, end;
 
-        if (startDate && endDate) {
-            start = moment(startDate).startOf("day");
-            end = moment(endDate).endOf("day");
-        } else {
-            const periods = {
-                today: [moment().startOf("day"), now],
-                yesterday: [moment().subtract(1, "day").startOf("day"), moment().subtract(1, "day").endOf("day")],
-                thisweek: [moment().startOf("week"), now],
-                prevweek: [moment().subtract(1, "week").startOf("week"), moment().subtract(1, "week").endOf("week")],
-                thismonth: [moment().startOf("month"), now],
-                lastmonth: [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
-            };
-            [start, end] = periods[period?.toLowerCase()] || [];
-            if (!start || !end) return res.status(400).json({ message: "Invalid period type or missing dates" });
-        }
+//         if (startDate && endDate) {
+//             start = moment(startDate).startOf("day");
+//             end = moment(endDate).endOf("day");
+//         } else {
+//             const periods = {
+//                 today: [moment().startOf("day"), now],
+//                 yesterday: [moment().subtract(1, "day").startOf("day"), moment().subtract(1, "day").endOf("day")],
+//                 thisweek: [moment().startOf("week"), now],
+//                 prevweek: [moment().subtract(1, "week").startOf("week"), moment().subtract(1, "week").endOf("week")],
+//                 thismonth: [moment().startOf("month"), now],
+//                 lastmonth: [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
+//             };
+//             [start, end] = periods[period?.toLowerCase()] || [];
+//             if (!start || !end) return res.status(400).json({ message: "Invalid period type or missing dates" });
+//         }
 
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.write("[");
+//         res.writeHead(200, { "Content-Type": "application/json" });
+//         res.write("[");
 
-        let firstUser = true;
-        for (const user of ArrUsernames) {
-            if (!firstUser) res.write(",");
-            res.write(`{"salesmanName": "${user}"`);
-            firstUser = false;
+//         let firstUser = true;
+//         for (const user of ArrUsernames) {
+//             if (!firstUser) res.write(",");
+//             res.write(`{"salesmanName": "${user}"`);
+//             firstUser = false;
 
-            let currentDate = moment(start);
+//             let currentDate = moment(start);
 
-            while (currentDate.isSameOrBefore(end, "day")) {
-                const dayStart = currentDate.clone().startOf("day").toDate();
-                const dayEnd = currentDate.clone().endOf("day").toDate();
+//             while (currentDate.isSameOrBefore(end, "day")) {
+//                 const dayStart = currentDate.clone().startOf("day").toDate();
+//                 const dayEnd = currentDate.clone().endOf("day").toDate();
                 
-                let totalDistance = 0;
-                const cursor = LiveData.find({
-                    username: user,
-                    timestamp: { $gte: dayStart, $lte: dayEnd }
-                }).sort({ timestamp: 1 }).select('-_id distance speed').lean().cursor();
+//                 let totalDistance = 0;
+//                 const cursor = LiveData.find({
+//                     username: user,
+//                     timestamp: { $gte: dayStart, $lte: dayEnd }
+//                 }).sort({ timestamp: 1 }).select('-_id distance speed').lean().cursor();
 
-                for await (const { distance, speed } of cursor) {
-                    if (parseFloat(speed) > 0.5) {
-                        totalDistance += Number(distance || 0);
-                    }
-                }
+//                 for await (const { distance, speed } of cursor) {
+//                     if (parseFloat(speed) > 0.5) {
+//                         totalDistance += Number(distance || 0);
+//                     }
+//                 }
                 
-                res.write(`,"${currentDate.format("YYYY-MM-DD")}": "${(totalDistance / 1000).toFixed(2)} km"`);
-                currentDate.add(1, "day");
-            }
-            res.write("}");
-        }
+//                 res.write(`,"${currentDate.format("YYYY-MM-DD")}": "${(totalDistance / 1000).toFixed(2)} km"`);
+//                 currentDate.add(1, "day");
+//             }
+//             res.write("}");
+//         }
 
-        res.write("]\n");
-        res.end();
-    } catch (error) {
-        console.error("❌ Error calculating distance:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-};
+//         res.write("]\n");
+//         res.end();
+//     } catch (error) {
+//         console.error("❌ Error calculating distance:", error);
+//         res.status(500).json({ message: "Internal server error" });
+//     }
+// };
 
 console.log("Pavan")
 
@@ -436,74 +436,79 @@ exports.getTaskReport = async (req, res) => {
       return R * c; 
   }
   
-  exports.getDistanceDayWise = async (req, res) => {
-      try {
-          const { usernames, period, startDate, endDate } = req.query;
-          if (!usernames) return res.status(400).json({ message: "Missing required parameters: username" });
-  
-          const ArrUsernames = usernames.split(",").map(u => u.trim());
-  
-          const now = moment().endOf("day");
-          let start, end;
-  
-          if (startDate && endDate) {
-              start = moment(startDate).startOf("day");
-              end = moment(endDate).endOf("day");
-          } else {
-              const periods = {
-                  today: [moment().startOf("day"), now],
-                  yesterday: [moment().subtract(1, "day").startOf("day"), moment().subtract(1, "day").endOf("day")],
-                  thisWeek: [moment().startOf("week"), now],
-                  prevweek: [moment().subtract(1, "week").startOf("week"), moment().subtract(1, "week").endOf("week")],
-                  thismonth: [moment().startOf("month"), now],
-                  lastmonth: [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
-              };
-              [start, end] = periods[period?.toLowerCase()] || [];
-              if (!start || !end) return res.status(400).json({ message: "Invalid period type or missing dates" });
-          }
-  
-          res.writeHead(200, { "Content-Type": "application/json" });
-          res.write("[");
-  
-          let firstUser = true;
-          for (const user of ArrUsernames) {
-              if (!firstUser) res.write(",");
-              res.write(`{"salesmanName": "${user}"`);
-              firstUser = false;
-  
-              let currentDate = moment(start);
-  
-              while (currentDate.isSameOrBefore(end, "day")) {
-                  const dayStart = currentDate.clone().startOf("day").toDate();
-                  const dayEnd = currentDate.clone().endOf("day").toDate();
-                  
-                  let totalDistance = 0;
-                  let prevLat = null, prevLon = null;
-                  
-                  const cursor = LiveData.find({
-                      username: user,
-                      timestamp: { $gte: dayStart, $lte: dayEnd }
-                  }).sort({ timestamp: 1 }).select('-_id latitude longitude speed').lean().cursor();
-  
-                  for await (const { latitude, longitude, speed } of cursor) {
-                      if (prevLat !== null && prevLon !== null && parseFloat(speed) > 0.5) {
-                          totalDistance += haversineDistance(prevLat, prevLon, latitude, longitude);
-                      }
-                      prevLat = latitude;
-                      prevLon = longitude;
-                  }
-                  
-                  res.write(`,"${currentDate.format("YYYY-MM-DD")}": "${totalDistance.toFixed(2)} km"`);
-                  currentDate.add(1, "day");
-              }
-              res.write("}");
-          }
-  
-          res.write("]\n");
-          res.end();
-      } catch (error) {
-          console.error("❌ Error calculating distance:", error);
-          res.status(500).json({ message: "Internal server error" });
-      }
-  };
-  
+
+exports.getDistanceDayWise = async (req, res) => {
+    try {
+        const { usernames, period, startDate, endDate } = req.query;
+        if (!usernames) return res.status(400).json({ message: "Missing required parameters: username" });
+
+        const ArrUsernames = usernames.split(",").map(u => u.trim());
+
+        const now = moment().endOf("day");
+        let start, end;
+
+        if (startDate && endDate) {
+            start = moment(startDate).startOf("day");
+            end = moment(endDate).endOf("day");
+        } else {
+            const lowerPeriod = period?.toLowerCase(); // Normalize period input
+            const periods = {
+                today: [moment().startOf("day"), now],
+                yesterday: [moment().subtract(1, "day").startOf("day"), moment().subtract(1, "day").endOf("day")],
+                thisweek: [moment().startOf("week"), now],
+                prevweek: [moment().subtract(1, "week").startOf("week"), moment().subtract(1, "week").endOf("week")],
+                thismonth: [moment().startOf("month"), now],
+                lastmonth: [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
+            };
+
+            [start, end] = periods[lowerPeriod] || [];
+
+            console.log("Selected Period:", lowerPeriod, "Start:", start?.format(), "End:", end?.format());
+
+            if (!start || !end) return res.status(400).json({ message: "Invalid period type or missing dates" });
+        }
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.write("[");
+
+        let firstUser = true;
+        for (const user of ArrUsernames) {
+            if (!firstUser) res.write(",");
+            res.write(`{"salesmanName": "${user}"`);
+            firstUser = false;
+
+            let currentDate = moment(start);
+
+            while (currentDate.isSameOrBefore(end, "day")) {
+                const dayStart = currentDate.clone().startOf("day").toDate();
+                const dayEnd = currentDate.clone().endOf("day").toDate();
+
+                let totalDistance = 0;
+                let prevLat = null, prevLon = null;
+
+                const cursor = LiveData.find({
+                    username: user,
+                    timestamp: { $gte: dayStart, $lte: dayEnd }
+                }).sort({ timestamp: 1 }).select('-_id latitude longitude speed').lean().cursor();
+
+                for await (const { latitude, longitude, speed } of cursor) {
+                    if (prevLat !== null && prevLon !== null && parseFloat(speed) > 0.5) {
+                        totalDistance += haversineDistance(prevLat, prevLon, latitude, longitude);
+                    }
+                    prevLat = latitude;
+                    prevLon = longitude;
+                }
+
+                res.write(`,"${currentDate.format("YYYY-MM-DD")}": "${totalDistance.toFixed(2)} km"`);
+                currentDate.add(1, "day");
+            }
+            res.write("}");
+        }
+
+        res.write("]\n");
+        res.end();
+    } catch (error) {
+        console.error("❌ Error calculating distance:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
