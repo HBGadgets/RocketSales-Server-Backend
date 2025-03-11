@@ -453,7 +453,7 @@ exports.getTaskReport = async (req, res) => {
               const periods = {
                   today: [moment().startOf("day"), now],
                   yesterday: [moment().subtract(1, "day").startOf("day"), moment().subtract(1, "day").endOf("day")],
-                  thisweek: [moment().startOf("week"), now],
+                  thisWeek: [moment().startOf("week"), now],
                   prevweek: [moment().subtract(1, "week").startOf("week"), moment().subtract(1, "week").endOf("week")],
                   thismonth: [moment().startOf("month"), now],
                   lastmonth: [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
