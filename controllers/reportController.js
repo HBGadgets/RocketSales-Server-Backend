@@ -439,7 +439,7 @@ exports.getTaskReport = async (req, res) => {
 
 exports.getDistanceDayWise = async (req, res) => {
     try {
-        const { usernames, period, startDate, endDate } = req.query;
+        const { usernames, filter, startDate, endDate } = req.query;
         if (!usernames) return res.status(400).json({ message: "Missing required parameters: username" });
 
         const ArrUsernames = usernames.split(",").map(u => u.trim());
@@ -451,7 +451,7 @@ exports.getDistanceDayWise = async (req, res) => {
             start = moment(startDate).startOf("day");
             end = moment(endDate).endOf("day");
         } else {
-            const lowerPeriod = period?.toLowerCase(); // Normalize period input
+            const lowerPeriod = filter?.toLowerCase(); // Normalize period input
             const periods = {
                 today: [moment().startOf("day"), now],
                 yesterday: [moment().subtract(1, "day").startOf("day"), moment().subtract(1, "day").endOf("day")],
