@@ -138,9 +138,9 @@ const loginUser = async (req, res) => {
     );
 
     // If the user is a salesman, update isLoggedIn to true
-    if (user instanceof Salesman) {
-      await Salesman.updateOne({ _id: user._id }, { isLoggedIn: true });
-    }
+    // if (user instanceof Salesman) {
+    //   await Salesman.updateOne({ _id: user._id }, { isLoggedIn: true });
+    // }
 
     res.status(200).json({
       message: "Successful Login",
