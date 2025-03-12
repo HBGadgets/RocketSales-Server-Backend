@@ -8,6 +8,7 @@ const ProductCollection = require("../models/ProductCollection");
 exports.ganaretInvoice = async (req, res) => {
 
           const {
+          orderId,
           customerName,
           customerAddress,
           companyName,
@@ -26,11 +27,12 @@ exports.ganaretInvoice = async (req, res) => {
 
       try {  
 
-       if (!customerName || !companyName || !companyAddress ) {
-         return res.status(400).json({ message: "customerName,companyName,quantity,date,productName fields are required" });
+       if (!customerName || !companyName || !companyAddress || !orderId ) {
+         return res.status(400).json({ message: "customerName,companyName,quantity,date,productName,orderId fields are required" });
        }
 
       const newinvoice = await Invoice.create({
+          orderId,
           customerName,
           customerAddress,
           companyName,
@@ -47,6 +49,11 @@ exports.ganaretInvoice = async (req, res) => {
           supervisorId,
           salesmanId
       });
+    const statusChange = await Order.findOneAndUpdate({ _id:orderId }, { status: "Completed"}, {new: true, upsert: false});
+
+    if (!statusChange) {
+      return res.status(404).json({ message: 'Order not found for create Invoice' });
+    } 
     const savedInvoice = await newinvoice.save();
       res.status(201).json({
         success: true,
@@ -147,6 +154,7 @@ exports.getInvoice = async (req, res) => {
 exports.updateInvoice = async (req, res) => {
   const  {id}  = req.params;
   const {
+    orderId,
     customerName,
     customerAddress,
     companyName,
@@ -166,7 +174,9 @@ exports.updateInvoice = async (req, res) => {
     
     try {
       
-      const updatedInvoice = await Invoice.findOneAndUpdate({_id:id}, {customerName,
+      const updatedInvoice = await Invoice.findOneAndUpdate({_id:id}, {
+        orderId,
+        customerName,
         customerAddress,
         companyName,
         companyAddress,
@@ -294,7 +304,7 @@ exports.getOrders = async (req, res) => {
         endOfDay = endDate ? new Date(endDate) : moment().endOf("day").toDate();
     }
 
-    let query = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
+    let query = { createdAt: { $gte: startOfDay, $lte: endOfDay },status: "Pending" };
 
     if (role === "superadmin") {
       orders = await Order.find(query)

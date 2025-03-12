@@ -21,6 +21,7 @@ const invoiceSchema = new mongoose.Schema({
   discount:{type: String},
   Unitprice:{type: String}, 
   totalAmount:{type: String},
+  orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
   companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
   branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch' },
   supervisorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supervisor' },

@@ -15,6 +15,7 @@ const orderSchema = new mongoose.Schema({
   shopContact: { type: String,},
   deliveryDate: { type: String,},
   shopOwnerName: { type: String,},
+  status: { type: String, default: 'Pending',enum: ['Pending', 'Completed'] },
   phoneNo: { type: String,},
   companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
   branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch' },
