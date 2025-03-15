@@ -8,7 +8,7 @@ const orderSchema = new mongoose.Schema({
       productName: { type: String, required: true },
       quantity: { type: Number, required: true },
       price: { type: Number, required: true },
-      hsnCode: { type: string,},
+      hsnCode: { type: String,},
     }
   ],
   shopName: { type: String,},
