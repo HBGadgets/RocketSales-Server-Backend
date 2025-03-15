@@ -39,7 +39,6 @@ exports.ganaretInvoice = async (req, res) => {
           products,
           date,
           gst,
-          HSNcode,
           discount,
           Unitprice,
           totalAmount,
