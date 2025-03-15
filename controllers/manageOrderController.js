@@ -16,7 +16,6 @@ exports.ganaretInvoice = async (req, res) => {
           products,
           date,
           gst,
-          HSNcode,
           discount,
           Unitprice,
           totalAmount, 
@@ -113,8 +112,8 @@ exports.getInvoice = async (req, res) => {
 
     if (role === "superadmin") {
       invoices = await Invoice.find(query)
-        .populate("companyId", "companyName")
-        .populate("branchId", "branchName")
+        .populate("companyId", "companyName, gstNo,panNo")
+        .populate("branchId", "branchName,branchLocation")
         .populate("supervisorId", "supervisorName")
         // .populate("salesmanId", "salesmanName");
     } else if (role === "company") {
