@@ -112,31 +112,31 @@ exports.getInvoice = async (req, res) => {
     if (role === "superadmin") {
       invoices = await Invoice.find(query)
         .populate("companyId", "companyName gstNo panNo")
-        .populate("branchId", "branchName,branchLocation")
+        .populate("branchId", "branchName branchLocation")
         .populate("supervisorId", "supervisorName")
         // .populate("salesmanId", "salesmanName");
     } else if (role === "company") {
       invoices = await Invoice.find({ companyId: id })
         .populate("companyId", "companyName gstNo panNo")
-        .populate("branchId", "branchName")
+        .populate("branchId", "branchName branchLocation")
         .populate("supervisorId", "supervisorName")
         // .populate("salesmanId", "salesmanName");
     } else if (role === "branch") {
       invoices = await Invoice.find({...query, branchId: id })
         .populate("companyId", "companyName gstNo,panNo")
-        .populate("branchId", "branchName")
+        .populate("branchId", "branchName branchLocation")
         .populate("supervisorId", "supervisorName")
         // .populate("salesmanId", "salesmanName");
     } else if (role === "supervisor") {
       invoices = await Invoice.find({...query, supervisorId: id })
       .populate("companyId", "companyName gstNo,panNo")
-      .populate("branchId", "branchName")
+      .populate("branchId", "branchName branchLocation")
       .populate("supervisorId", "supervisorName")
     }
       else if (role === "salesman") {
       todayAttendance = await Invoice.find({...query, salesmanId: id })
         .populate("companyId", "companyName")
-        .populate("branchId", "branchName")
+        .populate("branchId", "branchName branchLocation")
         .populate("supervisorId", "supervisorName")
         .populate("salesmanId", "salesmanName");
     }
